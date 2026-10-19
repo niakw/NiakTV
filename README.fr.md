@@ -4,7 +4,7 @@
   <h3>Moins de bruit. Plus de place pour votre TV.</h3>
   <p>Votre prochaine séance, vos apps favorites et vos appareils connectés.<br>Un accueil Android TV personnel, de l’ambiance cinéma à l’essentiel.</p>
   <p><kbd>Android TV 8+</kbd> <kbd>Sans publicité</kbd> <kbd>Sans télémétrie</kbd> <kbd>EN / FR</kbd></p>
-  <p><a href="https://github.com/niakw/niaktv/actions/workflows/android.yml"><img src="https://github.com/niakw/niaktv/actions/workflows/android.yml/badge.svg" alt="Compilation Android"></a></p>
+  <p><a href="https://github.com/niakw/NiakTV/actions/workflows/android.yml"><img src="https://github.com/niakw/NiakTV/actions/workflows/android.yml/badge.svg" alt="Compilation Android"></a></p>
 </div>
 
 <p align="center"><a href="#experience"><strong>Expérience</strong></a> · <a href="#install"><strong>Installer</strong></a> · <a href="#customise"><strong>Personnaliser</strong></a> · <a href="#documentation"><strong>Documentation</strong></a></p>
@@ -37,7 +37,7 @@ Aucune ligne sponsorisée, bande-annonce automatique ou analyse d’usage. L’i
 
 ## ⚡ Prendre ses marques
 
-NiakTV est actuellement distribué sous forme d’**APK de développement** dans [GitHub Actions](https://github.com/niakw/niaktv/actions/workflows/android.yml).
+NiakTV est actuellement distribué sous forme d’**APK de développement** dans [GitHub Actions](https://github.com/niakw/NiakTV/actions/workflows/android.yml).
 
 1. Ouvrez une compilation réussie, téléchargez **niaktv-debug** et extrayez `app-debug.apk`.
 2. Activez le débogage ADB sur la TV, connectez-vous depuis l’ordinateur et installez l’APK.
@@ -75,7 +75,7 @@ TMDB utilise votre clé API ou votre jeton de lecture personnel, conservé dans 
 | Signaler une vulnérabilité en privé                      | [Sécurité](SECURITY.md#francais)                |
 | Participer à la communauté                               | [Code de conduite](CODE_OF_CONDUCT.md#francais) |
 
-Les questions vont dans [Discussions](https://github.com/niakw/niaktv/discussions) ; les anomalies reproductibles et suggestions dans les [Issues](https://github.com/niakw/niaktv/issues/new/choose). Le français et l’anglais sont les bienvenus.
+Les questions vont dans [Discussions](https://github.com/niakw/NiakTV/discussions) ; les anomalies reproductibles et suggestions dans les [Issues](https://github.com/niakw/NiakTV/issues/new/choose). Le français et l’anglais sont les bienvenus.
 
 ## Crédits et licence
 

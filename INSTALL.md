@@ -10,7 +10,7 @@ Nuvio and a TMDB key are optional. Start without either if you just want apps an
 
 ## 1. Get the APK
 
-Open the [Android workflow](https://github.com/niakw/niaktv/actions/workflows/android.yml), choose a **successful** build and download the **niaktv-debug** artifact. Extract `app-debug.apk` from the ZIP. A failed or still-running build may not have an APK.
+Open the [Android workflow](https://github.com/niakw/NiakTV/actions/workflows/android.yml), choose a **successful** build and download the **niaktv-debug** artifact. Extract `app-debug.apk` from the ZIP. A failed or still-running build may not have an APK.
 
 ## 2. Connect and install
 
@@ -65,4 +65,4 @@ Open **Settings → Original home** to stop NiakTV redirection and open Google h
 
 After installation, you can disconnect with `adb disconnect TV_IP:5555` and turn off debugging when you no longer need it.
 
-**Next:** [NiakTV](README.md) · [Accessibility](ACCESSIBILITY.md) · [Report an issue](https://github.com/niakw/niaktv/issues/new/choose)
+**Next:** [NiakTV](README.md) · [Accessibility](ACCESSIBILITY.md) · [Report an issue](https://github.com/niakw/NiakTV/issues/new/choose)

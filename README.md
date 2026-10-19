@@ -4,7 +4,7 @@
   <h3>Less noise. More of your TV.</h3>
   <p>Your next watch, your favourite apps and your connected devices.<br>A personal Android TV home, from cinema atmosphere to just the essentials.</p>
   <p><kbd>Android TV 8+</kbd> <kbd>No ads</kbd> <kbd>No telemetry</kbd> <kbd>EN / FR</kbd></p>
-  <p><a href="https://github.com/niakw/niaktv/actions/workflows/android.yml"><img src="https://github.com/niakw/niaktv/actions/workflows/android.yml/badge.svg" alt="Android build"></a></p>
+  <p><a href="https://github.com/niakw/NiakTV/actions/workflows/android.yml"><img src="https://github.com/niakw/NiakTV/actions/workflows/android.yml/badge.svg" alt="Android build"></a></p>
 </div>
 
 <p align="center"><a href="#experience"><strong>Experience</strong></a> · <a href="#install"><strong>Install</strong></a> · <a href="#customise"><strong>Customise</strong></a> · <a href="#documentation"><strong>Documentation</strong></a></p>
@@ -37,7 +37,7 @@ No sponsored rows, autoplay trailers or analytics. The interface and fonts are s
 
 ## ⚡ Get started
 
-NiakTV is currently distributed as a **development APK** through [GitHub Actions](https://github.com/niakw/niaktv/actions/workflows/android.yml).
+NiakTV is currently distributed as a **development APK** through [GitHub Actions](https://github.com/niakw/NiakTV/actions/workflows/android.yml).
 
 1. Open a successful build, download **niaktv-debug** and extract `app-debug.apk`.
 2. Enable ADB debugging on the TV, connect from your computer and install the APK.
@@ -75,7 +75,7 @@ TMDB uses a personal API key or read access token stored privately on the TV and
 | Report a vulnerability privately                          | [Security](SECURITY.md)               |
 | Participate in the community                              | [Code of conduct](CODE_OF_CONDUCT.md) |
 
-Questions belong in [Discussions](https://github.com/niakw/niaktv/discussions); reproducible bugs and feature requests belong in [Issues](https://github.com/niakw/niaktv/issues/new/choose). English and French are welcome.
+Questions belong in [Discussions](https://github.com/niakw/NiakTV/discussions); reproducible bugs and feature requests belong in [Issues](https://github.com/niakw/NiakTV/issues/new/choose). English and French are welcome.
 
 ## Credits & licence
 

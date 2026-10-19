@@ -10,7 +10,7 @@ Nuvio et une clé TMDB sont facultatifs. Commencez sans ces services si vous vou
 
 ## 1. Récupérer l’APK
 
-Ouvrez le [workflow Android](https://github.com/niakw/niaktv/actions/workflows/android.yml), choisissez une compilation **réussie** et téléchargez l’artefact **niaktv-debug**. Extrayez `app-debug.apk` du ZIP. Une compilation en échec ou encore en cours peut ne pas proposer d’APK.
+Ouvrez le [workflow Android](https://github.com/niakw/NiakTV/actions/workflows/android.yml), choisissez une compilation **réussie** et téléchargez l’artefact **niaktv-debug**. Extrayez `app-debug.apk` du ZIP. Une compilation en échec ou encore en cours peut ne pas proposer d’APK.
 
 ## 2. Connecter et installer
 
@@ -65,4 +65,4 @@ Ouvrez **Réglages → Accueil d’origine** pour couper la redirection NiakTV e
 
 Après l’installation, vous pouvez vous déconnecter avec `adb disconnect TV_IP:5555` et désactiver le débogage lorsque vous n’en avez plus besoin.
 
-**La suite :** [NiakTV](README.fr.md) · [Accessibilité](ACCESSIBILITY.md#francais) · [Signaler une anomalie](https://github.com/niakw/niaktv/issues/new/choose)
+**La suite :** [NiakTV](README.fr.md) · [Accessibilité](ACCESSIBILITY.md#francais) · [Signaler une anomalie](https://github.com/niakw/NiakTV/issues/new/choose)

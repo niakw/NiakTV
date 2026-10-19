@@ -6,8 +6,8 @@ labels: ""
 assignees: ""
 ---
 
-Write in English or French. For vulnerabilities, use [private reporting](https://github.com/niakw/niaktv/security/advisories/new).
-Écrivez en français ou en anglais. Pour une vulnérabilité, utilisez le [signalement privé](https://github.com/niakw/niaktv/security/advisories/new).
+Write in English or French. For vulnerabilities, use [private reporting](https://github.com/niakw/NiakTV/security/advisories/new).
+Écrivez en français ou en anglais. Pour une vulnérabilité, utilisez le [signalement privé](https://github.com/niakw/NiakTV/security/advisories/new).
 
 ### What happens? / Que se passe-t-il ?
 

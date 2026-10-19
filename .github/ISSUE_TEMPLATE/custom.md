@@ -6,8 +6,8 @@ labels: ""
 assignees: ""
 ---
 
-For setup questions, [Discussions](https://github.com/niakw/niaktv/discussions) may be a better place.
-Pour une question d’installation, privilégiez [Discussions](https://github.com/niakw/niaktv/discussions).
+For setup questions, [Discussions](https://github.com/niakw/NiakTV/discussions) may be a better place.
+Pour une question d’installation, privilégiez [Discussions](https://github.com/niakw/NiakTV/discussions).
 
 ### Device and build / Appareil et build
 

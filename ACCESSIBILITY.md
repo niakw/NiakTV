@@ -28,7 +28,7 @@ The interface fixes text zoom and uses a custom directional focus model; those c
 
 ### Report a barrier
 
-Use the [accessibility issue template](https://github.com/niakw/niaktv/issues/new?template=accessibility.md). Describe the task, steps, expected behaviour, TV/Android version and input method. Mention assistive technology only if relevant; no disability disclosure is required. Images and recordings are optional and should avoid private content.
+Use the [accessibility issue template](https://github.com/niakw/NiakTV/issues/new?template=accessibility.md). Describe the task, steps, expected behaviour, TV/Android version and input method. Mention assistive technology only if relevant; no disability disclosure is required. Images and recordings are optional and should avoid private content.
 
 Maintainers review the impact on the task and available workarounds. A task that cannot be completed deserves attention before a cosmetic inconsistency. Contributors should include remote-navigation checks and any assistive-technology checks they actually performed; see [Contributing](CONTRIBUTING.md#english).
 
@@ -58,6 +58,6 @@ L’interface fixe le zoom du texte et utilise son propre focus directionnel ; c
 
 ### Signaler un obstacle
 
-Utilisez le [modèle d’issue d’accessibilité](https://github.com/niakw/niaktv/issues/new?template=accessibility.md). Décrivez la tâche, les étapes, le comportement attendu, la version TV/Android et le moyen de saisie. Mentionnez une technologie d’assistance seulement si cela aide ; aucune information sur un handicap n’est demandée. Les images et vidéos sont facultatives et doivent éviter les contenus privés.
+Utilisez le [modèle d’issue d’accessibilité](https://github.com/niakw/NiakTV/issues/new?template=accessibility.md). Décrivez la tâche, les étapes, le comportement attendu, la version TV/Android et le moyen de saisie. Mentionnez une technologie d’assistance seulement si cela aide ; aucune information sur un handicap n’est demandée. Les images et vidéos sont facultatives et doivent éviter les contenus privés.
 
 La maintenance examine l’impact sur la tâche et les contournements possibles. Une tâche impossible à terminer mérite de l’attention avant une incohérence visuelle. Les contributions doivent préciser les contrôles télécommande et les essais de technologies d’assistance réellement effectués ; voir [Contribution](CONTRIBUTING.md#francais).

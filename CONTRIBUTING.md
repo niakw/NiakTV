@@ -8,7 +8,7 @@
 
 ### Start with the right conversation
 
-Use [Discussions](https://github.com/niakw/niaktv/discussions) for setup questions and early ideas. Use the [issue templates](https://github.com/niakw/niaktv/issues/new/choose) for reproducible bugs, accessibility barriers or a concrete feature proposal. English and French are equally welcome. Report vulnerabilities through [Security](SECURITY.md), rather than a public issue.
+Use [Discussions](https://github.com/niakw/NiakTV/discussions) for setup questions and early ideas. Use the [issue templates](https://github.com/niakw/NiakTV/issues/new/choose) for reproducible bugs, accessibility barriers or a concrete feature proposal. English and French are equally welcome. Report vulnerabilities through [Security](SECURITY.md), rather than a public issue.
 
 For a substantial change, describe the user problem and intended behaviour before starting a large implementation. Small fixes can go straight to a pull request.
 
@@ -59,7 +59,7 @@ The project uses [GNU GPL v3](LICENSE); keep third-party notices with the assets
 
 ### Choisir le bon échange
 
-Utilisez [Discussions](https://github.com/niakw/niaktv/discussions) pour les questions d’installation et les premières idées. Les [modèles d’issues](https://github.com/niakw/niaktv/issues/new/choose) servent aux anomalies reproductibles, obstacles d’accessibilité et propositions concrètes. Le français et l’anglais sont les bienvenus. Signalez les vulnérabilités par le canal [Sécurité](SECURITY.md#francais), pas dans une issue publique.
+Utilisez [Discussions](https://github.com/niakw/NiakTV/discussions) pour les questions d’installation et les premières idées. Les [modèles d’issues](https://github.com/niakw/NiakTV/issues/new/choose) servent aux anomalies reproductibles, obstacles d’accessibilité et propositions concrètes. Le français et l’anglais sont les bienvenus. Signalez les vulnérabilités par le canal [Sécurité](SECURITY.md#francais), pas dans une issue publique.
 
 Pour une évolution importante, décrivez le besoin utilisateur et le comportement envisagé avant de lancer une grosse implémentation. Une petite correction peut faire directement l’objet d’une pull request.
 

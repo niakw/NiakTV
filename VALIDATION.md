@@ -15,7 +15,7 @@
 | On-device UI checks  | Section order, viewport fit, fonts, visible focus, row navigation, drawers, EN/FR and missing-app fixture cases     | TalkBack support or an accessibility audit           |
 | Manual device checks | Nuvio deep links, HDMI launch, original-home recovery, renderer recovery and persisted appearance/language settings | Multi-brand compatibility or long-duration stability |
 
-[Android workflow results](https://github.com/niakw/niaktv/actions/workflows/android.yml) identify the exact commit built. [Contributing](CONTRIBUTING.md#english) contains build prerequisites and commands. Documentation-only updates do not require reinstalling the launcher.
+[Android workflow results](https://github.com/niakw/NiakTV/actions/workflows/android.yml) identify the exact commit built. [Contributing](CONTRIBUTING.md#english) contains build prerequisites and commands. Documentation-only updates do not require reinstalling the launcher.
 
 ### Run the installed UI checks
 
@@ -60,7 +60,7 @@ Electrical reboot, multi-day midnight rotation, extended playback and broad manu
 | Contrôles UI sur appareil | Ordre des blocs, cadrage, polices, focus, navigation, panneaux, EN/FR et cas d’app absente simulés                     | La prise en charge de TalkBack ou un audit d’accessibilité        |
 | Essais manuels            | Liens Nuvio, HDMI, retour à l’accueil d’origine, récupération du renderer et conservation des réglages                 | Une compatibilité multimarque ou une stabilité de longue durée    |
 
-Les [résultats du workflow Android](https://github.com/niakw/niaktv/actions/workflows/android.yml) identifient le commit compilé. [Contribution](CONTRIBUTING.md#francais) contient les prérequis et commandes de compilation. Une mise à jour documentaire ne demande pas de réinstaller le lanceur.
+Les [résultats du workflow Android](https://github.com/niakw/NiakTV/actions/workflows/android.yml) identifient le commit compilé. [Contribution](CONTRIBUTING.md#francais) contient les prérequis et commandes de compilation. Une mise à jour documentaire ne demande pas de réinstaller le lanceur.
 
 ### Exécuter les contrôles de l’interface installée
 

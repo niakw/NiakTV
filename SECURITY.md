@@ -8,9 +8,9 @@
 
 ### Report a vulnerability privately
 
-Use **[Report a vulnerability](https://github.com/niakw/niaktv/security/advisories/new)** in the repository’s Security tab. Private vulnerability reporting is enabled. Describe the affected version or commit, impact, prerequisites and a minimal reproduction using dummy data. Share the smallest log excerpt needed; never include a real API key, signing key or personal viewing history.
+Use **[Report a vulnerability](https://github.com/niakw/NiakTV/security/advisories/new)** in the repository’s Security tab. Private vulnerability reporting is enabled. Describe the affected version or commit, impact, prerequisites and a minimal reproduction using dummy data. Share the smallest log excerpt needed; never include a real API key, signing key or personal viewing history.
 
-Ordinary crashes, UI bugs and setup questions belong in [Issues](https://github.com/niakw/niaktv/issues/new/choose) or [Discussions](https://github.com/niakw/niaktv/discussions). Please keep exploit details out of public issues until maintainers and the reporter have agreed on disclosure. Response and fix times depend on the issue and maintainer availability; there is no guaranteed turnaround.
+Ordinary crashes, UI bugs and setup questions belong in [Issues](https://github.com/niakw/NiakTV/issues/new/choose) or [Discussions](https://github.com/niakw/NiakTV/discussions). Please keep exploit details out of public issues until maintainers and the reporter have agreed on disclosure. Response and fix times depend on the issue and maintainer availability; there is no guaranteed turnaround.
 
 ### Scope and maintenance
 
@@ -34,9 +34,9 @@ For network/cache limits and what has actually been exercised, see [Validation](
 
 ### Signaler une vulnérabilité en privé
 
-Utilisez **[Report a vulnerability](https://github.com/niakw/niaktv/security/advisories/new)** dans l’onglet Security du dépôt. Le signalement privé est activé. Précisez la version ou le commit concerné, l’impact, les conditions nécessaires et une reproduction minimale avec des données fictives. Limitez les logs à l’extrait utile ; ne joignez jamais de vraie clé API, clé de signature ou historique de visionnage personnel.
+Utilisez **[Report a vulnerability](https://github.com/niakw/NiakTV/security/advisories/new)** dans l’onglet Security du dépôt. Le signalement privé est activé. Précisez la version ou le commit concerné, l’impact, les conditions nécessaires et une reproduction minimale avec des données fictives. Limitez les logs à l’extrait utile ; ne joignez jamais de vraie clé API, clé de signature ou historique de visionnage personnel.
 
-Les plantages ordinaires, anomalies d’interface et questions d’installation vont dans les [Issues](https://github.com/niakw/niaktv/issues/new/choose) ou [Discussions](https://github.com/niakw/niaktv/discussions). Gardez les détails d’exploitation hors des issues publiques jusqu’à un accord de divulgation entre maintenance et auteur du signalement. Les délais de réponse et de correction dépendent du problème et des disponibilités ; aucun délai fixe n’est garanti.
+Les plantages ordinaires, anomalies d’interface et questions d’installation vont dans les [Issues](https://github.com/niakw/NiakTV/issues/new/choose) ou [Discussions](https://github.com/niakw/NiakTV/discussions). Gardez les détails d’exploitation hors des issues publiques jusqu’à un accord de divulgation entre maintenance et auteur du signalement. Les délais de réponse et de correction dépendent du problème et des disponibilités ; aucun délai fixe n’est garanti.
 
 ### Périmètre et maintenance
 
