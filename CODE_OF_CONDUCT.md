@@ -1,128 +1,51 @@
-# Contributor Covenant Code of Conduct
+# Code of conduct / Code de conduite
 
-## Our Pledge
+[English](#english) · [Français](#francais) · [NiakTV](README.md)
 
-We as members, contributors, and leaders pledge to make participation in our
-community a harassment-free experience for everyone, regardless of age, body
-size, visible or invisible disability, ethnicity, sex characteristics, gender
-identity and expression, level of experience, education, socio-economic status,
-nationality, personal appearance, race, religion, or sexual identity
-and orientation.
+<a id="english"></a>
 
-We pledge to act and interact in ways that contribute to an open, welcoming,
-diverse, inclusive, and healthy community.
+## English
 
-## Our Standards
+### A respectful place to contribute
 
-Examples of behavior that contributes to a positive environment for our
-community include:
+Everyone should be able to ask a question, report a problem or contribute without harassment or discrimination. This applies to issues, pull requests, discussions and other spaces where someone represents NiakTV. Experience level, language, background and disability do not determine whose feedback matters.
 
-* Demonstrating empathy and kindness toward other people
-* Being respectful of differing opinions, viewpoints, and experiences
-* Giving and gracefully accepting constructive feedback
-* Accepting responsibility and apologizing to those affected by our mistakes,
-  and learning from the experience
-* Focusing on what is best not just for us as individuals, but for the
-  overall community
+Be specific and constructive. Discuss a design or implementation rather than attacking its author. Accept corrections, give credit and respect someone’s decision to leave a conversation. French and English are both welcome; clarity matters more than perfect grammar.
 
-Examples of unacceptable behavior include:
+Harassment, threats, sexualised attention, discriminatory language, personal attacks, spam and publication of another person’s private information without consent are unacceptable. Disagreement about the app is welcome; targeting a person is not.
 
-* The use of sexualized language or imagery, and sexual attention or
-  advances of any kind
-* Trolling, insulting or derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or email
-  address, without their explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+### Reporting and moderation
 
-## Enforcement Responsibilities
+For abusive content or behaviour on GitHub, use the available **Report content** or **Report abuse** options, or [GitHub’s reporting process](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam). Reports sent to GitHub Support are handled by GitHub; they are not a private inbox operated by NiakTV.
 
-Community leaders are responsible for clarifying and enforcing our standards of
-acceptable behavior and will take appropriate and fair corrective action in
-response to any behavior that they deem inappropriate, threatening, offensive,
-or harmful.
+To flag a visible discussion to project maintainers, reference the relevant issue, pull request or discussion without reposting private information. Do not publish a confidential incident report in an issue. [Security reports](SECURITY.md) have a separate channel for software vulnerabilities.
 
-Community leaders have the right and responsibility to remove, edit, or reject
-comments, commits, code, wiki edits, issues, and other contributions that are
-not aligned to this Code of Conduct, and will communicate reasons for moderation
-decisions when appropriate.
+Maintainers may request a correction, remove harmful content, lock a conversation, restrict participation or block repeated or serious abuse. They should consider context, explain a moderation decision when appropriate and avoid exposing private details. Retaliation against someone who reports a concern is itself unacceptable. No fixed response time or dedicated incident-response team is promised.
 
-## Scope
+### Attribution
 
-This Code of Conduct applies within all community spaces, and also applies when
-an individual is officially representing the community in public spaces.
-Examples of representing our community include using an official e-mail address,
-posting via an official social media account, or acting as an appointed
-representative at an online or offline event.
+Adapted from the [Contributor Covenant, version 2.0](https://www.contributor-covenant.org/version/2/0/code_of_conduct/), with project-specific reporting instructions.
 
-## Enforcement
+<a id="francais"></a>
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-.
-All complaints will be reviewed and investigated promptly and fairly.
+## Français
 
-All community leaders are obligated to respect the privacy and security of the
-reporter of any incident.
+### Un espace de contribution respectueux
 
-## Enforcement Guidelines
+Chacun doit pouvoir poser une question, signaler un problème ou contribuer sans harcèlement ni discrimination. Ces règles s’appliquent aux issues, pull requests, discussions et autres espaces où une personne représente NiakTV. L’expérience, la langue, l’origine ou un handicap ne déterminent pas la valeur d’un retour.
 
-Community leaders will follow these Community Impact Guidelines in determining
-the consequences for any action they deem in violation of this Code of Conduct:
+Soyez précis et constructif. Discutez d’un choix de design ou de code plutôt que d’attaquer son auteur. Acceptez les corrections, reconnaissez les contributions et respectez le choix de quitter un échange. Le français et l’anglais sont les bienvenus ; la clarté compte davantage qu’une grammaire parfaite.
 
-### 1. Correction
+Harcèlement, menaces, sollicitations sexualisées, propos discriminatoires, attaques personnelles, spam et divulgation d’informations privées sans consentement sont inacceptables. Le désaccord sur l’app a sa place ; les attaques contre une personne n’en ont pas.
 
-**Community Impact**: Use of inappropriate language or other behavior deemed
-unprofessional or unwelcome in the community.
+### Signalement et modération
 
-**Consequence**: A private, written warning from community leaders, providing
-clarity around the nature of the violation and an explanation of why the
-behavior was inappropriate. A public apology may be requested.
+Pour un contenu ou un comportement abusif sur GitHub, utilisez les options **Report content** ou **Report abuse** disponibles, ou [la procédure de signalement GitHub](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam). Les signalements envoyés au support GitHub sont traités par GitHub ; ce n’est pas une messagerie privée gérée par NiakTV.
 
-### 2. Warning
+Pour attirer l’attention de la maintenance sur un échange visible, indiquez l’issue, la pull request ou la discussion concernée sans republier d’informations privées. Ne déposez pas de récit confidentiel dans une issue. Les [signalements de sécurité](SECURITY.md#francais) disposent d’un canal distinct pour les vulnérabilités logicielles.
 
-**Community Impact**: A violation through a single incident or series
-of actions.
+La maintenance peut demander une correction, retirer un contenu nuisible, verrouiller un échange, limiter la participation ou bloquer des abus répétés ou graves. Elle doit tenir compte du contexte, expliquer ses décisions lorsque c’est approprié et éviter d’exposer des informations privées. Les représailles envers une personne qui signale un problème sont elles-mêmes inacceptables. Aucun délai fixe ni équipe dédiée au traitement des incidents ne sont garantis.
 
-**Consequence**: A warning with consequences for continued behavior. No
-interaction with the people involved, including unsolicited interaction with
-those enforcing the Code of Conduct, for a specified period of time. This
-includes avoiding interactions in community spaces as well as external channels
-like social media. Violating these terms may lead to a temporary or
-permanent ban.
+### Attribution
 
-### 3. Temporary Ban
-
-**Community Impact**: A serious violation of community standards, including
-sustained inappropriate behavior.
-
-**Consequence**: A temporary ban from any sort of interaction or public
-communication with the community for a specified period of time. No public or
-private interaction with the people involved, including unsolicited interaction
-with those enforcing the Code of Conduct, is allowed during this period.
-Violating these terms may lead to a permanent ban.
-
-### 4. Permanent Ban
-
-**Community Impact**: Demonstrating a pattern of violation of community
-standards, including sustained inappropriate behavior,  harassment of an
-individual, or aggression toward or disparagement of classes of individuals.
-
-**Consequence**: A permanent ban from any sort of public interaction within
-the community.
-
-## Attribution
-
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 2.0, available at
-https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
-
-Community Impact Guidelines were inspired by [Mozilla's code of conduct
-enforcement ladder](https://github.com/mozilla/diversity).
-
-[homepage]: https://www.contributor-covenant.org
-
-For answers to common questions about this code of conduct, see the FAQ at
-https://www.contributor-covenant.org/faq. Translations are available at
-https://www.contributor-covenant.org/translations.
+Adapté du [Contributor Covenant, version 2.0](https://www.contributor-covenant.org/version/2/0/code_of_conduct/), avec une procédure de signalement propre au projet.

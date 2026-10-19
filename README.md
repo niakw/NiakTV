@@ -1,63 +1,84 @@
 <div align="center">
   <img src="assets/branding/niaktv-logo.svg" alt="NiakTV — Your TV. Your space." width="800">
   <p><strong>English</strong> · <a href="README.fr.md">Français</a></p>
-  <h3>A home screen that feels like yours.</h3>
-  <p><kbd>Android TV 8+</kbd> <kbd>No ads</kbd> <kbd>Cinema or minimal</kbd> <kbd>EN / FR</kbd></p>
-  <p>Your apps. Your inputs. Your next watch.<br>A considered TV interface, with the freedom to keep only what you need.</p>
+  <h3>Less noise. More of your TV.</h3>
+  <p>Your next watch, your favourite apps and your connected devices.<br>A personal Android TV home, from cinema atmosphere to just the essentials.</p>
+  <p><kbd>Android TV 8+</kbd> <kbd>No ads</kbd> <kbd>No telemetry</kbd> <kbd>EN / FR</kbd></p>
+  <p><a href="https://github.com/niakw/niaktv/actions/workflows/android.yml"><img src="https://github.com/niakw/niaktv/actions/workflows/android.yml/badge.svg" alt="Android build"></a></p>
 </div>
 
-<p align="center"><a href="#-make-yourself-at-home"><strong>Experience</strong></a> · <a href="#-install-in-a-few-minutes"><strong>Install</strong></a> · <a href="#-make-it-yours"><strong>Customise</strong></a> · <a href="VALIDATION.md"><strong>Development & validation</strong></a></p>
+<p align="center"><a href="#experience"><strong>Experience</strong></a> · <a href="#install"><strong>Install</strong></a> · <a href="#customise"><strong>Customise</strong></a> · <a href="#documentation"><strong>Documentation</strong></a></p>
+
+<p align="center">
+  <img src="assets/screenshots/home-en.png" alt="NiakTV home: My selection, inputs and TV app dock" width="960">
+  <br><sub>Captured from NiakTV on Android TV, with a neutral app selection and an empty watch-next feed. No personal viewing history is shown.</sub>
+</p>
 
 ---
 
-## ✨ Make yourself at home
+<a id="experience"></a>
 
-| Your home                      | Your choice                                                                                                                                                                                            |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **A cinema atmosphere**        | Daily TMDB backdrops from now-playing films, with the film’s original title discreetly credited at the bottom left. Use your own API key.                                                              |
-| **A calmer alternative**       | Choose a solid colour or static gradient in Mint, Violet, Blue or Graphite. No wallpaper downloads in these modes.                                                                                     |
-| **Your next watch**            | Real watch-next titles published by Nuvio, with artwork and progress when available. Without Nuvio, an installed supported streaming app becomes a shortcut; without one, no replacement card appears. |
-| **Only what matters**          | Hide **My selection** entirely. **Performance mode** also switches to a solid background, stops watch-next/image loading and simplifies focus effects.                                                 |
-| **A proper remote experience** | Clear mint/violet focus, directional navigation, custom app marks, favourites and a dock you can reorder. Hold OK on an app to organise it.                                                            |
-| **Your language**              | Full English and French interface. Follow the TV language or choose one in Settings. App names and programme titles retain their original labels.                                                      |
+## ✨ A place for what you actually use
 
-**My selection → Inputs → TV apps.** No sponsored rows, autoplay trailers or telemetry. The interface and fonts live on the TV. Optional content downloads happen while the launcher is in the foreground.
+**My selection → Inputs → TV apps.** A remote-first interface with custom app marks, clear focus and typography that gives content room to breathe.
 
-## ⚡ Install in a few minutes
+| Make it yours              | What you get                                                                                                                                                           |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A little cinema**        | Daily TMDB backdrops from the now-playing catalogue. The film’s original title stays discreetly credited at the bottom left.                                           |
+| **Your next watch**        | Real Nuvio watch-next titles, artwork and progress when published by the app. Nuvio is optional: a supported installed streaming app can take its place as a shortcut. |
+| **Your own shortcuts**     | Choose favourites and reorder the app dock with a long press on OK. HDMI inputs stay within reach.                                                                     |
+| **Room to keep it simple** | Hide My selection, use a solid colour or a static gradient, and choose Mint, Violet, Blue or Graphite.                                                                 |
+| **A lighter home**         | Performance mode hides My selection, uses a solid background and stops programme and content-image loading. The remote focus stays visible.                            |
+| **Your language**          | English, French or the TV’s language. App and programme names keep their original labels.                                                                              |
 
-1. Download the **niaktv-debug** APK artifact from a successful [Android workflow run](https://github.com/niakw/niaktv/actions/workflows/android.yml) and extract `app-debug.apk`. These are development builds.
-2. On the TV, enable Developer options and ADB debugging. Connect your computer and TV to the same network and accept the TV’s debugging prompt.
-3. With [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools) installed, replace `TV_IP` below with your TV’s address:
+No sponsored rows, autoplay trailers or analytics. The interface and fonts are stored on the TV. No Nuvio installation or TMDB account is needed for the launcher’s core features.
 
-```sh
-adb connect TV_IP:5555
-adb -s TV_IP:5555 install -r app-debug.apk
-adb -s TV_IP:5555 shell am start -n tv.niak.launcher/.MainActivity
-```
+<a id="install"></a>
 
-4. Open **Settings → Home button**. Choose NiakTV as the Home app when the TV allows it. On compatible TVs that enforce Google home, enable the optional **NiakTV — Home button** accessibility service.
+## ⚡ Get started
 
-**Keep a way back:** **Settings → Original home** stops redirection and opens Google home. You can also turn off NiakTV’s accessibility service in Android settings. No system app needs to be removed or disabled. Manufacturer behaviour varies.
+NiakTV is currently distributed as a **development APK** through [GitHub Actions](https://github.com/niakw/niaktv/actions/workflows/android.yml).
 
-Updates must use the same signing key as the installed APK. CI artifacts and locally signed builds may have different keys; Android will reject an incompatible update.
+1. Open a successful build, download **niaktv-debug** and extract `app-debug.apk`.
+2. Enable ADB debugging on the TV, connect from your computer and install the APK.
+3. Open NiakTV, then use **Settings → Home button** to configure the Home behaviour supported by your TV.
 
-## 🎛 Make it yours
+**[Installation guide →](INSTALL.md)** Includes commands, first setup, updates, troubleshooting and how to return to the original home.
 
-- **Cinema:** Settings → Background style → Cinema, then configure your personal TMDB API key or read access token. Enable daily change or keep the current backdrop. **Next wallpaper** requests another film.
-- **Minimal:** switch on **Performance mode** for inputs and apps on a solid background. Switching it off restores your previous selection/background choices.
-- **Your balance:** hide **My selection** independently, or choose a gradient without giving up favourites. Pick your accent palette and language.
-- **Watch next:** with Nuvio installed, allow Android TV programme access when prompted. NiakTV can only show titles Nuvio publishes. Opening a title follows Nuvio’s own link and may show its source chooser.
+NiakTV keeps the original launcher available. The optional Home accessibility service provides compatibility with some TVs that enforce Google home; it does not read window content. No system app needs to be removed or disabled.
 
-Your TMDB credential stays in the app’s private Android storage, excluded from backups. It is never embedded in the APK, sent to the JavaScript interface or committed to this repository. **No TMDB account or Nuvio installation is required to use the launcher.**
+<a id="customise"></a>
 
-## 🛠 Built to stay small
+## 🎛 Cinema when you want it. Minimal when you don’t.
 
-Local HTML/CSS/JavaScript with a native Android bridge. No web framework, remote page, ad SDK or analytics. Bounded image cache, deferred artwork and foreground-only refreshes. The optional Home accessibility service observes only Google home window changes, with no access to window content.
+| Start here               | In Settings                                                                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cinema**               | Background style → Cinema, then configure your own TMDB key. Choose daily change or keep a favourite backdrop.                                        |
+| **Minimal**              | Enable Performance mode for inputs and apps on a solid background. Turning it off restores the previous selection and background choices.             |
+| **Somewhere in between** | Hide My selection independently, choose a gradient and set your palette. Choosing a background or changing section visibility exits Performance mode. |
+| **Watch next**           | With Nuvio installed, allow Android TV programme access. Only titles actually published by Nuvio appear; opening one follows Nuvio’s link.            |
 
-Performance mode reduces work; it is not a system-wide Android optimisation or a guarantee of 60 fps. See [validation, build instructions and known limits](VALIDATION.md).
+Without Nuvio, NiakTV can offer a supported installed streaming app as a shortcut. Without a supported app, no replacement card appears. It does not manufacture watch history for other streaming services.
 
-## Credits
+TMDB uses a personal API key or read access token stored privately on the TV and excluded from backups. The credential is never embedded in the APK or passed to the JavaScript interface. Solid and gradient backgrounds do not download cinema images.
 
-This product uses the TMDB API but is not endorsed or certified by TMDB. Film artwork belongs to its respective rights holders. NiakTV is independent of TMDB, Nuvio and the application brands shown in its interface.
+<a id="documentation"></a>
 
-Manrope — Mikhail Sharanda, Mirko Velimirovic. Instrument Serif — Instrument. Both fonts are bundled under the SIL Open Font License; licence files are included alongside the fonts. The fallback cinema artwork was created for NiakTV.
+## 📚 Find your way
+
+| You want to…                                              | Read                                  |
+| --------------------------------------------------------- | ------------------------------------- |
+| Install, update or restore the original home              | [Installation](INSTALL.md)            |
+| Build the app or contribute                               | [Contributing](CONTRIBUTING.md)       |
+| Understand what has been checked and what remains limited | [Validation](VALIDATION.md)           |
+| Understand remote navigation and accessibility limits     | [Accessibility](ACCESSIBILITY.md)     |
+| Report a vulnerability privately                          | [Security](SECURITY.md)               |
+| Participate in the community                              | [Code of conduct](CODE_OF_CONDUCT.md) |
+
+Questions belong in [Discussions](https://github.com/niakw/niaktv/discussions); reproducible bugs and feature requests belong in [Issues](https://github.com/niakw/niaktv/issues/new/choose). English and French are welcome.
+
+## Credits & licence
+
+[GNU GPL v3](LICENSE). Bundled Manrope and Instrument Serif fonts retain their [SIL Open Font License notices](app/src/main/assets/fonts/). The original fallback artwork was created for NiakTV. Film artwork belongs to its respective rights holders.
+
+This product uses the TMDB API but is not endorsed or certified by TMDB. NiakTV is independent of TMDB, Nuvio and the app brands shown in its interface.

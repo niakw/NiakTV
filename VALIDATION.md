@@ -1,87 +1,93 @@
-# Development & validation / Développement et validation
+# Validation & limits / Validation et limites
 
-**[English](#english) · [Français](#français)**
+[English](#english) · [Français](#francais) · [NiakTV](README.md)
+
+<a id="english"></a>
 
 ## English
 
-### Build
+### What each check establishes
 
-Requires JDK 17, Android SDK 35 and Build Tools 35.0.0. Point `ANDROID_HOME` or an ignored `local.properties` file at the SDK. The Gradle wrapper pins Gradle 8.13 with a SHA256 check; AGP is 8.9.2.
+| Check                | Coverage                                                                                                            | Does not establish                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Android CI           | Build, Android Lint, unit tests and frontend syntax                                                                 | Correct behaviour on every TV or firmware            |
+| Unit tests           | App ordering/movement, changing app inventories, daily rotation and installed-only streaming fallbacks              | Network availability or manufacturer integration     |
+| On-device UI checks  | Section order, viewport fit, fonts, visible focus, row navigation, drawers, EN/FR and missing-app fixture cases     | TalkBack support or an accessibility audit           |
+| Manual device checks | Nuvio deep links, HDMI launch, original-home recovery, renderer recovery and persisted appearance/language settings | Multi-brand compatibility or long-duration stability |
 
-```sh
-./gradlew testDebugUnitTest lintDebug assembleDebug
-node --check app/src/main/assets/i18n.js
-node --check app/src/main/assets/ui.js
-```
+[Android workflow results](https://github.com/niakw/niaktv/actions/workflows/android.yml) identify the exact commit built. [Contributing](CONTRIBUTING.md#english) contains build prerequisites and commands. Documentation-only updates do not require reinstalling the launcher.
 
-APK: `app/build/outputs/apk/debug/app-debug.apk`. A local `.signing/niaktv-debug.keystore`, if present, is used for debug builds and must never be committed. Keep the signing identity stable for updates. CI builds are development artifacts, not production-signed releases.
+### Run the installed UI checks
 
-### Checks
-
-Unit tests cover app ordering, removed/new apps, movement, daily wallpaper rotation and installed-only streaming fallbacks. `scripts/check-ui.mjs` checks the installed debug WebView, including navigation, optional content and language changes. Use a reference device without private media when publishing screenshots or test output.
+Use a debuggable APK, an authorised ADB connection and Node.js 22 or later. Replace `TV_IP` with the connected device address and `PID` with the process number returned by the first command.
 
 ```sh
 adb -s TV_IP:5555 shell pidof tv.niak.launcher
-# Replace PID with the number returned above.
 adb -s TV_IP:5555 forward tcp:39222 localabstract:webview_devtools_remote_PID
 node scripts/check-ui.mjs
+adb -s TV_IP:5555 forward --remove tcp:39222
 ```
 
-The device smoke checks use fixture models for missing-app cases; they do not uninstall the user's apps. WebView debugging is enabled only in debuggable Android builds.
+The script temporarily applies fixture models to the local page for absent-app and language cases, then restores the native model. It does not uninstall apps or change their data. Avoid interacting with the launcher while it runs. WebView inspection is available only in debuggable builds.
 
-### Runtime boundaries
+### Device evidence and performance
 
-- Local virtual origin `https://niaktv.local/`; blocked remote navigation, WebView network, cookies, file/content access and DOM storage. Native networking is restricted to approved artwork hosts.
-- Nuvio data comes only from Android TV programme tables with permission. No access to private Nuvio files. Resume links must explicitly target Nuvio.
-- At most 32 recent programmes and 16 cached artwork JPEGs. The first three illustrations are prefetched; further downloads wait for stable focus.
-- Hiding My selection stops programme reads, its content observer and artwork requests. Performance mode also forces a solid background and prevents wallpaper refreshes. An already-running bounded request may complete when settings change.
-- Solid/gradient backgrounds use CSS without fetching film images. Cinema refreshes occur only in the foreground; offline failures preserve the last cached backdrop.
-- Optional Home redirection observes Google home window changes only. Google home stays available. Some firmwares clear accessibility activation after force-stop; re-enable the service if needed.
+The cinema interface and recovery paths have been exercised on Android TV 12. Appearance, language and Performance mode persistence have been checked after an app restart. Real Nuvio links opened the associated programme/source-selection flow; this does not validate a complete playback session.
 
-### Evidence and limits
+An earlier cinema-build sample of 48 navigation frames measured a **32 ms median** and **46 ms 95th percentile**; all 48 exceeded the Android frame deadline. This is a short development-build observation, not a current benchmark of every mode or evidence of sustained 60 fps. No controlled speed comparison with Google home is claimed, and Performance mode’s gain has not been quantified. WebView uses a separate renderer, so host-process memory alone is not total launcher memory.
 
-The cinema interface has been exercised on Android TV 12, including real Nuvio deep links, HDMI launch, original-home recovery and WebView renderer recovery. A short development-build navigation sample measured a 32 ms median frame and 46 ms 95th percentile; this does **not** establish sustained 60 fps. No controlled performance comparison against Google home is claimed. Performance mode reduces content work; its speedup is not quantified.
+Electrical reboot, multi-day midnight rotation, extended playback and broad manufacturer coverage remain unverified. No personal device address, watch history or raw device screenshot is needed in this document.
 
-Not validated across all TV brands: electrical reboot, multi-day midnight rotation and long playback sessions. Manufacturer input and Home behaviour varies. The live TMDB catalogue depends on TMDB's current now-playing metadata and regional availability.
+### Implementation limits that affect the experience
+
+- Programme support is currently specific to Nuvio’s Android TV publications. A fallback streaming shortcut does not provide that app’s watch history.
+- At most 32 recent programmes are exposed. Programme artwork has a bounded cache; the first three images are prefetched and other images wait for stable focus.
+- Hiding My selection stops programme reads, its observer and further artwork requests. Performance mode also forces a solid background and prevents cinema refreshes. An already-running bounded request can finish after a mode change or leaving the home screen.
+- The cinema catalogue uses TMDB’s France now-playing feed. Metadata, regional availability and usable artwork depend on TMDB. Daily refresh happens when the home screen is active, not through a permanent background downloader.
+- Home compatibility targets Google Android TV home. The current live-TV shortcut targets a manufacturer-specific activity; other firmware may require the TV’s own input selector. Some firmwares clear NiakTV’s accessibility activation after a force-stop.
+- Accessibility beyond directional-remote checks needs dedicated evaluation; see [Accessibility](ACCESSIBILITY.md#english).
+
+<a id="francais"></a>
 
 ## Français
 
-### Compiler
+### Ce que chaque contrôle établit
 
-JDK 17, SDK Android 35 et Build Tools 35.0.0 requis. Faites pointer `ANDROID_HOME` ou un fichier `local.properties` ignoré vers le SDK. Le wrapper fixe Gradle 8.13 avec vérification SHA256 ; AGP est en version 8.9.2.
+| Contrôle                  | Couverture                                                                                                             | Ne permet pas d’affirmer                                          |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| CI Android                | Compilation, Android Lint, tests unitaires et syntaxe de l’interface                                                   | Un fonctionnement correct sur toutes les TV et tous les firmwares |
+| Tests unitaires           | Ordre/déplacement des apps, inventaires qui évoluent, rotation quotidienne et app de remplacement réellement installée | La disponibilité réseau ou l’intégration fabricant                |
+| Contrôles UI sur appareil | Ordre des blocs, cadrage, polices, focus, navigation, panneaux, EN/FR et cas d’app absente simulés                     | La prise en charge de TalkBack ou un audit d’accessibilité        |
+| Essais manuels            | Liens Nuvio, HDMI, retour à l’accueil d’origine, récupération du renderer et conservation des réglages                 | Une compatibilité multimarque ou une stabilité de longue durée    |
 
-```sh
-./gradlew testDebugUnitTest lintDebug assembleDebug
-node --check app/src/main/assets/i18n.js
-node --check app/src/main/assets/ui.js
-```
+Les [résultats du workflow Android](https://github.com/niakw/niaktv/actions/workflows/android.yml) identifient le commit compilé. [Contribution](CONTRIBUTING.md#francais) contient les prérequis et commandes de compilation. Une mise à jour documentaire ne demande pas de réinstaller le lanceur.
 
-APK : `app/build/outputs/apk/debug/app-debug.apk`. Une clé locale `.signing/niaktv-debug.keystore`, si présente, sert aux versions debug et ne doit jamais être versionnée. Conservez la même signature pour les mises à jour. Les builds CI sont des artefacts de développement, pas des versions signées pour la production.
+### Exécuter les contrôles de l’interface installée
 
-### Vérifier
-
-Les tests unitaires couvrent l’ordre des apps, les ajouts/suppressions, les déplacements, la rotation quotidienne et le choix d’une app de streaming réellement installée. `scripts/check-ui.mjs` vérifie la WebView debug installée, dont la navigation, les contenus facultatifs et les langues. Utilisez un appareil sans médias personnels pour publier des captures ou des résultats.
+Utilisez un APK débogable, une connexion ADB autorisée et Node.js 22 ou plus récent. Remplacez `TV_IP` par l’adresse de l’appareil connecté et `PID` par le numéro de processus retourné par la première commande.
 
 ```sh
 adb -s TV_IP:5555 shell pidof tv.niak.launcher
-# Remplacez PID par le nombre obtenu ci-dessus.
 adb -s TV_IP:5555 forward tcp:39222 localabstract:webview_devtools_remote_PID
 node scripts/check-ui.mjs
+adb -s TV_IP:5555 forward --remove tcp:39222
 ```
 
-Les contrôles sur appareil utilisent des modèles fictifs pour les cas d’app absente ; ils ne désinstallent aucune app. Le débogage WebView n’est actif que dans les builds Android débogables.
+Le script applique temporairement des modèles de contrôle à la page locale pour les cas d’app absente et les langues, puis rétablit le modèle natif. Il ne désinstalle aucune app et ne modifie pas leurs données. Évitez d’utiliser le lanceur pendant son exécution. L’inspection WebView n’est disponible que dans les builds débogables.
 
-### Limites de fonctionnement
+### Essais sur appareil et performances
 
-- Origine virtuelle locale `https://niaktv.local/` ; navigation distante, réseau WebView, cookies, accès fichier/contenu et stockage DOM bloqués. Le réseau natif est limité aux hôtes d’illustrations autorisés.
-- Les reprises Nuvio proviennent uniquement des programmes Android TV autorisés, sans accès aux fichiers privés. Les liens doivent cibler explicitement Nuvio.
-- Au maximum 32 programmes récents et 16 illustrations JPEG en cache. Trois images préchargées ; les suivantes attendent un focus stable.
-- Masquer Ma sélection coupe la lecture des programmes, leur observateur et les demandes d’illustrations. Le mode performance impose aussi un fond uni et empêche les actualisations de fond. Une requête bornée déjà en cours peut se terminer lors du changement.
-- Les fonds unis/dégradés utilisent du CSS sans télécharger d’image de film. Le cinéma s’actualise uniquement au premier plan ; une panne réseau conserve le fond en cache.
-- La redirection Accueil facultative observe uniquement les changements de fenêtre de Google. L’accueil Google reste accessible. Certains firmwares retirent l’activation du service après un arrêt forcé ; réactivez-le si nécessaire.
+L’interface cinéma et les mécanismes de récupération ont été essayés sur Android TV 12. La conservation de l’apparence, de la langue et du mode performance a été vérifiée après redémarrage de l’app. Les liens Nuvio réels ont ouvert le programme et son choix de sources ; cela ne valide pas une session de lecture complète.
 
-### Résultats et limites
+Un échantillon antérieur de 48 images de navigation en mode cinéma a mesuré **32 ms en médiane** et **46 ms au 95e percentile** ; les 48 images dépassaient l’échéance de rendu Android. C’est une observation courte sur un build de développement, pas un benchmark actuel de tous les modes ni la preuve d’un 60 fps constant. Aucune comparaison contrôlée avec Google n’est revendiquée et le gain du mode performance n’est pas chiffré. WebView utilise un renderer séparé : la mémoire du processus hôte ne représente pas toute la mémoire du lanceur.
 
-L’interface cinéma a été essayée sur Android TV 12 : liens Nuvio réels, ouverture HDMI, retour à l’accueil d’origine et récupération du renderer WebView. Un court échantillon de navigation debug a mesuré 32 ms par image en médiane et 46 ms au 95e percentile ; cela ne valide **pas** un 60 fps constant. Aucune comparaison contrôlée avec Google n’est revendiquée. Le mode performance réduit le travail lié aux contenus ; son gain n’est pas chiffré.
+Le redémarrage électrique, la rotation à minuit sur plusieurs jours, la lecture prolongée et une large couverture de fabricants restent non vérifiés. Ce document n’a besoin d’aucune adresse personnelle d’appareil, historique de visionnage ou capture brute de TV.
 
-Non validés sur toutes les marques : redémarrage électrique, rotation à minuit sur plusieurs jours et lecture prolongée. Les entrées et le bouton Accueil dépendent du fabricant. Le catalogue TMDB suit les métadonnées « à l’affiche » et leur disponibilité régionale.
+### Limites de l’implémentation visibles à l’usage
+
+- La lecture des programmes est actuellement propre aux publications Android TV de Nuvio. Le raccourci vers une autre app ne donne pas accès à son historique de lecture.
+- Au maximum 32 programmes récents sont exposés. Le cache d’illustrations est borné ; trois images sont préchargées et les suivantes attendent un focus stable.
+- Masquer Ma sélection coupe la lecture des programmes, leur observateur et les nouvelles demandes d’illustrations. Le mode performance impose aussi un fond uni et empêche les actualisations cinéma. Une requête bornée déjà en cours peut se terminer après un changement de mode ou la sortie de l’accueil.
+- Le catalogue cinéma utilise le flux TMDB des films à l’affiche en France. Métadonnées, disponibilité régionale et illustrations exploitables dépendent de TMDB. L’actualisation quotidienne se fait quand l’accueil est actif, sans téléchargeur permanent en arrière-plan.
+- La compatibilité Accueil cible Google Android TV. Le raccourci TV en direct actuel cible une activité fabricant ; un autre firmware peut demander d’utiliser son propre sélecteur d’entrées. Certains firmwares retirent l’activation du service NiakTV après un arrêt forcé.
+- L’accessibilité au-delà de la télécommande directionnelle demande une évaluation dédiée ; voir [Accessibilité](ACCESSIBILITY.md#francais).

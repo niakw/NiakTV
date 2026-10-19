@@ -1,95 +1,63 @@
-# Accessibility
-access
-<!--
-Include a brief statement describing why accessibility matters to your
-project, who should be able to use and contribute to it, and what this
-document covers, such as your accessibility commitments, contributor
-expectations, and issue-reporting process.
+# Accessibility / Accessibilité
 
-Write for people who may read this after encountering a barrier. Use plain
-language and describe user experiences rather than relying on legal
-language, technical jargon, or standards codes.
--->
+[English](#english) · [Français](#francais) · [NiakTV](README.md)
 
-## Priorities
+<a id="english"></a>
 
-<!--
-Describe the outcomes the project prioritizes and how it works toward them.
-If you name a WCAG level as an accessibility target, make clear that it is
-an aspirational goal rather than a verified conformance claim. Only claim
-conformance after an evaluation, and identify the evaluated scope, date,
-method, and evaluator. Also describe the areas you prioritize, such as
-keyboard, screen reader, content, or language support.
--->
+## English
 
-## Contributor expectations
+### A TV interface you can navigate
 
-<!--
-Describe the accessibility guardrails that apply to contributions,
-including relevant testing, documentation, and continuous integration
-checks. Name specific tools only when the project uses them, and explain
-what evidence contributors should include with user-facing changes.
--->
+NiakTV prioritises operation from a standard directional TV remote. The current interface provides:
 
-## Reporting accessibility issues
+- Arrow navigation through content, favourites, inputs, apps and settings, with a visible focus outline.
+- OK to open, a long press on OK to organise an app, Menu or the on-screen settings button to open settings, and Back to close a panel or return to the main content.
+- Scrolling that follows focused items, including horizontal rows. A hidden selection section is removed from directional navigation.
+- English and French text, labelled primary controls and text alongside app/input marks. Background art is decorative.
+- No autoplay or permanently animated background. Solid backgrounds and Performance mode offer a less visually busy alternative while preserving focus.
 
-<!--
-Provide a direct, accessible way to report a barrier or request help.
-Invite useful context such as the affected task, URL, observed behavior,
-browser, operating system, and assistive technology. Make screenshots or
-recordings optional and do not require disability disclosure.
--->
+### What is not yet established
 
-### Severity
+Remote navigation has been exercised on an Android TV 12 reference device. This does **not** establish TalkBack compatibility, complete switch-access support, a screen-reader reading order or conformance to an accessibility standard. Contrast has not been audited across every palette and cinema image. System font scaling, magnification and low-vision use across screen sizes also need dedicated evaluation.
 
-<!--
-If your project uses severity levels, define them and give practical
-examples based on how strongly a barrier affects a user's ability to
-complete a task. Keep labels consistent with your issue template and
-resolution targets if those processes exist. Maintainers can assign or
-confirm severity during triage; reporters do not need to.
--->
+The interface fixes text zoom and uses a custom directional focus model; those choices can limit assistive-technology behaviour. If text or focus is hard to distinguish, try a solid background or another palette and report the affected task. This is a workaround, not a claim that the barrier is resolved.
 
-### How we respond
+### The Home accessibility service has a different purpose
 
-<!--
-Explain what reporters can expect after submitting an accessibility issue,
-including acknowledgement, status updates, workarounds, expected timelines,
-and opportunities to verify a fix. Use commitments your project can
-consistently uphold.
--->
+**NiakTV — Home button** is an optional compatibility service for TVs that enforce Google home. It observes Google home window-change events and can open NiakTV; it is configured without access to window content. It is not a screen reader or an accessibility certification. It can be disabled independently in Android settings. See [Installation](INSTALL.md).
 
-## Ownership and maintenance
+### Report a barrier
 
-<!--
-Identify the team, role, or maintainer responsible for accessibility and
-describe their responsibilities to the project. Include the review cadence
-and how ownership transfers when responsibilities change.
--->
+Use the [accessibility issue template](https://github.com/niakw/niaktv/issues/new?template=accessibility.md). Describe the task, steps, expected behaviour, TV/Android version and input method. Mention assistive technology only if relevant; no disability disclosure is required. Images and recordings are optional and should avoid private content.
 
-## Supported environments
+Maintainers review the impact on the task and available workarounds. A task that cannot be completed deserves attention before a cosmetic inconsistency. Contributors should include remote-navigation checks and any assistive-technology checks they actually performed; see [Contributing](CONTRIBUTING.md#english).
 
-<!--
-List the platforms, devices, browsers, input methods, and assistive
-technologies the project supports or has tested. Include versions where
-useful, note partial support, and avoid implying support for combinations
-that have not been evaluated.
--->
+<a id="francais"></a>
 
-## Known limitations
+## Français
 
-<!--
-Describe known barriers in terms of the affected user experience, such as
-"videos do not have captions," rather than standards codes. Include
-available workarounds or equivalent access and link to tracked issues. If
-no limitations are currently documented, describe what has been tested
-instead of claiming that no barriers exist.
--->
+### Une interface navigable à la télécommande
 
-## Feedback and improvements
+NiakTV privilégie l’utilisation avec une télécommande TV directionnelle standard. L’interface actuelle propose :
 
-<!--
-Explain how users and contributors can suggest improvements to this
-statement or the project's accessibility practices. Direct active
-accessibility barriers to the reporting process above.
--->
+- Une navigation par flèches entre contenus, favoris, entrées, apps et réglages, avec un contour de focus visible.
+- OK pour ouvrir, un appui long sur OK pour organiser une app, Menu ou le bouton de réglages à l’écran pour ouvrir le panneau, Retour pour le fermer ou revenir au contenu principal.
+- Un défilement qui suit le focus, y compris dans les lignes horizontales. Un bloc de sélection masqué est retiré du parcours directionnel.
+- Des textes en français et en anglais, des libellés sur les commandes principales et du texte avec les pictogrammes d’apps et d’entrées. Le fond est décoratif.
+- Aucun lancement automatique de vidéo ni fond animé permanent. Les fonds unis et le mode performance réduisent la charge visuelle en conservant le focus.
+
+### Ce qui reste à établir
+
+La navigation à la télécommande a été essayée sur un appareil de référence Android TV 12. Cela ne valide **pas** la compatibilité TalkBack, la prise en charge complète du contrôle par contacteurs, l’ordre de lecture d’un lecteur d’écran ou la conformité à une norme d’accessibilité. Le contraste n’a pas été audité sur toutes les palettes et images de cinéma. Le grossissement du texte, la loupe et les usages en basse vision sur différentes tailles d’écran demandent également une évaluation dédiée.
+
+L’interface fixe le zoom du texte et utilise son propre focus directionnel ; ces choix peuvent limiter le comportement des technologies d’assistance. Si le texte ou le focus se distingue mal, essayez un fond uni ou une autre palette et signalez la tâche concernée. Il s’agit d’un contournement, pas d’une résolution garantie.
+
+### Le service d’accessibilité Accueil a un autre rôle
+
+**NiakTV — bouton Accueil** est un service facultatif de compatibilité avec les TV qui imposent Google. Il observe les changements de fenêtre de l’accueil Google et peut ouvrir NiakTV ; sa configuration ne lui permet pas de lire le contenu des fenêtres. Ce n’est ni un lecteur d’écran ni une certification d’accessibilité. Il peut être désactivé séparément dans Android. Voir [Installation](INSTALL.fr.md).
+
+### Signaler un obstacle
+
+Utilisez le [modèle d’issue d’accessibilité](https://github.com/niakw/niaktv/issues/new?template=accessibility.md). Décrivez la tâche, les étapes, le comportement attendu, la version TV/Android et le moyen de saisie. Mentionnez une technologie d’assistance seulement si cela aide ; aucune information sur un handicap n’est demandée. Les images et vidéos sont facultatives et doivent éviter les contenus privés.
+
+La maintenance examine l’impact sur la tâche et les contournements possibles. Une tâche impossible à terminer mérite de l’attention avant une incohérence visuelle. Les contributions doivent préciser les contrôles télécommande et les essais de technologies d’assistance réellement effectués ; voir [Contribution](CONTRIBUTING.md#francais).

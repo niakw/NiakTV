@@ -1,38 +1,35 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
-
+name: Bug / Anomalie
+about: Report reproducible launcher behaviour / Signaler une anomalie reproductible du lanceur
+title: ""
+labels: ""
+assignees: ""
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+Write in English or French. For vulnerabilities, use [private reporting](https://github.com/niakw/niaktv/security/advisories/new).
+Écrivez en français ou en anglais. Pour une vulnérabilité, utilisez le [signalement privé](https://github.com/niakw/niaktv/security/advisories/new).
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+### What happens? / Que se passe-t-il ?
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Describe the affected task and what you expected instead.
+Décrivez la tâche concernée et le comportement attendu.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+### Steps to reproduce / Étapes de reproduction
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+Include the actions from opening NiakTV to the problem. Does it happen every time?
+Précisez les actions depuis l’ouverture de NiakTV. Le problème est-il systématique ?
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+### Environment / Environnement
 
-**Additional context**
-Add any other context about the problem here.
+- NiakTV version or commit / Version ou commit NiakTV :
+- APK source: Actions or local build / Origine de l’APK : Actions ou build local :
+- TV model and Android version / Modèle de TV et version Android :
+- WebView version, if known / Version WebView, si connue :
+- Cinema, solid or gradient; Performance mode on/off / Cinéma, uni ou dégradé ; mode performance actif/inactif :
+- My selection visible/hidden; interface language / Sélection visible/masquée ; langue de l’interface :
+- Input method: remote, keyboard or pointer / Moyen de saisie : télécommande, clavier ou pointeur :
+
+### Additional evidence — optional / Éléments complémentaires — facultatifs
+
+A short redacted log or neutral screenshot can help. Never include keys, device serials, local addresses, account details or personal viewing history.
+Un court log anonymisé ou une capture neutre peut aider. Ne joignez ni clés, numéros de série, adresses locales, informations de compte ou historique personnel.

@@ -1,20 +1,29 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+name: Feature / Évolution
+about: Suggest a useful TV experience / Proposer une amélioration de l’expérience TV
+title: ""
+labels: ""
+assignees: ""
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+English or French welcome. / Le français et l’anglais sont les bienvenus.
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+### The need / Le besoin
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+What are you trying to do on the TV, and what makes it difficult today?
+Que cherchez-vous à faire sur la TV, et quelle difficulté rencontrez-vous aujourd’hui ?
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+### Proposed experience / Expérience proposée
+
+Describe the result from the user’s point of view, including remote navigation where relevant.
+Décrivez le résultat du point de vue utilisateur, avec le parcours à la télécommande si utile.
+
+### Alternatives and scope / Alternatives et périmètre
+
+Is there an existing setting or workaround? Should this be optional? Would it affect minimal mode, performance or EN/FR text?
+Existe-t-il un réglage ou un contournement ? Faut-il une option ? Quel impact sur le mode minimal, les performances ou les textes EN/FR ?
+
+### References — optional / Références — facultatives
+
+Sketches or links can help explain the idea. Use neutral content rather than personal accounts or watch history.
+Des croquis ou liens peuvent éclairer l’idée. Préférez du contenu neutre à des comptes ou historiques personnels.
