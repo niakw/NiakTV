@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-label="NiakTV — Your TV. Your space.">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#081719"/><stop offset="1" stop-color="#241d3d"/></linearGradient><linearGradient id="accent"><stop stop-color="#91f5df"/><stop offset="1" stop-color="#b5a4ff"/></linearGradient></defs>
+<rect width="960" height="300" rx="28" fill="url(#bg)"/><path d="M78 182V88h25l62 63V88h25v94h-25l-62-63v63z" fill="url(#accent)"/><text x="226" y="161" fill="#f3f2ed" font-family="Arial,sans-serif" font-weight="700" font-size="76" letter-spacing="8">NIAK<tspan font-weight="300" fill="#91f5df">TV</tspan></text><text x="229" y="211" fill="#afb8c7" font-family="Arial,sans-serif" font-size="22" letter-spacing="2">YOUR TV. YOUR SPACE.</text><path d="M726 67h150M776 106h100M810 145h66" stroke="url(#accent)" stroke-width="2" opacity=".4"/>
+</svg>

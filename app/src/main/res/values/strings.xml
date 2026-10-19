@@ -1,0 +1,4 @@
+<resources>
+    <string name="redirect_label">NiakTV — Home button</string>
+    <string name="redirect_description">Redirects Google home to NiakTV on TVs that enforce their launcher. No access to window content. Disable this service to restore the original home.</string>
+</resources>

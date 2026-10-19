@@ -1,0 +1,4 @@
+<resources>
+    <string name="redirect_label">NiakTV — bouton Accueil</string>
+    <string name="redirect_description">Redirige l’accueil Google vers NiakTV sur les TV qui imposent leur lanceur. Aucun accès au contenu des fenêtres. Désactivez ce service pour revenir à l’accueil d’origine.</string>
+</resources>

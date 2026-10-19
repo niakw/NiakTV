@@ -1,0 +1,22 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.software.leanback" android:required="true" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_TV_LISTINGS" />
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
+    <queries>
+        <intent><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LEANBACK_LAUNCHER"/></intent>
+        <intent><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent>
+        <package android:name="com.google.android.tvlauncher"/>
+    </queries>
+    <application android:label="NiakTV" android:icon="@drawable/icon" android:banner="@drawable/banner" android:theme="@style/AppTheme" android:allowBackup="false" android:dataExtractionRules="@xml/backup_rules" android:usesCleartextTraffic="false" android:supportsRtl="true">
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.HOME"/><category android:name="android.intent.category.DEFAULT"/></intent-filter>
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/><category android:name="android.intent.category.LEANBACK_LAUNCHER"/></intent-filter>
+        </activity>
+        <service android:name=".HomeRedirectService" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true" android:label="@string/redirect_label">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/home_redirect"/>
+        </service>
+    </application>
+</manifest>

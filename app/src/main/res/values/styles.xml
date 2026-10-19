@@ -1,0 +1,20 @@
+<resources>
+    <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#91F5DF</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#090C12</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:alertDialogTheme">@style/NiakDialog</item>
+    </style>
+    <style name="NiakDialog" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:colorAccent">#91F5DF</item>
+        <item name="android:colorBackground">#141B26</item>
+        <item name="android:windowBackground">@drawable/dialog_panel</item>
+        <item name="android:colorControlHighlight">#35E8BE7B</item>
+        <item name="android:textColorPrimary">#F5F6F8</item>
+        <item name="android:textColorSecondary">#A4AEBC</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+</resources>

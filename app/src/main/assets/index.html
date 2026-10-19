@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>NiakTV</title>
+    <link rel="stylesheet" href="ui.css" />
+    <script src="i18n.js" defer></script>
+    <script src="ui.js" defer></script>
+  </head>
+  <body>
+    <div id="wallpaper" aria-hidden="true"></div>
+    <div class="home">
+      <header class="topbar">
+        <div class="identity">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <path d="M3 23V5h5l12 12V5h5v18h-5L8 11v12z" /></svg
+          ><span>NIAK<span class="brand-tv">TV</span></span>
+        </div>
+        <div class="top-right">
+          <span id="date"></span><time id="clock"></time
+          ><button
+            class="settings-button"
+            data-action="menu"
+            aria-label="Réglages"
+            data-i18n-label="Réglages"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M4 7h16M4 17h16M8 4v6M16 14v6" />
+            </svg>
+          </button>
+        </div>
+      </header>
+      <section
+        class="selection"
+        aria-label="Ma sélection"
+        data-i18n-label="Ma sélection"
+      >
+        <div class="section-heading">
+          <h1>
+            <span data-i18n="Ma sélection">Ma sélection</span
+            ><span class="heading-dot"></span>
+          </h1>
+          <span id="selection-info" data-i18n="Votre espace personnel"
+            >Votre espace personnel</span
+          >
+        </div>
+        <div id="continue" class="continue-grid"></div>
+        <div id="favorites" class="favorites"></div>
+      </section>
+      <section
+        class="inputs-section"
+        aria-label="Entrées"
+        data-i18n-label="Entrées"
+      >
+        <div class="section-heading compact">
+          <h2 data-i18n="Entrées">Entrées</h2>
+          <span data-i18n="Vos appareils">Vos appareils</span>
+        </div>
+        <div id="inputs" class="inputs"></div>
+      </section>
+      <section
+        class="apps-section"
+        aria-label="Apps TV"
+        data-i18n-label="Apps TV"
+      >
+        <div class="section-heading compact">
+          <h2 data-i18n="Apps TV">Apps TV</h2>
+          <span data-i18n="Appui long pour organiser"
+            >Appui long pour organiser</span
+          >
+        </div>
+        <div id="apps" class="apps-dock"></div>
+      </section>
+      <footer>
+        <span id="wallpaper-credit"></span
+        ><span class="remote-hint" data-i18n="OK ouvrir · ☰ réglages"
+          >OK ouvrir · ☰ réglages</span
+        >
+      </footer>
+    </div>
+    <div id="overlay" class="overlay" hidden>
+      <div class="drawer">
+        <div class="drawer-top">
+          <div>
+            <span class="eyebrow" data-i18n="À VOTRE FAÇON">À VOTRE FAÇON</span>
+            <h2 id="drawer-title">Réglages</h2>
+          </div>
+          <button
+            class="close"
+            data-action="close"
+            aria-label="Fermer"
+            data-i18n-label="Fermer"
+          >
+            ×
+          </button>
+        </div>
+        <div id="drawer-content"></div>
+      </div>
+    </div>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </body>
+</html>
