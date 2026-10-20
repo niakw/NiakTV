@@ -6,7 +6,6 @@ import android.content.*;
 import android.content.pm.*;
 import android.database.ContentObserver;
 import android.graphics.*;
-import android.graphics.drawable.Drawable;
 import android.media.tv.*;
 import android.net.Uri;
 import android.os.*;
@@ -16,9 +15,6 @@ import android.view.*;
 import android.webkit.*;
 import android.widget.*;
 import java.io.*;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -45,18 +41,20 @@ public final class MainActivity extends Activity {
   private final Handler main = new Handler(Looper.getMainLooper());
   private final ExecutorService catalogueIO = Executors.newSingleThreadExecutor(),
       artworkIO = Executors.newSingleThreadExecutor();
-  private final Map<String, byte[]> icons = new ConcurrentHashMap<>();
   private final Map<String, Intent> launches = new HashMap<>();
   private final List<ResumeStore.Item> resumes = new ArrayList<>();
   private final List<String> inputIds = new ArrayList<>();
   private JSONArray appData = new JSONArray(), inputData = new JSONArray();
   private SharedPreferences prefs;
   private WallpaperStore wallpapers;
+  private ArtworkCache artworkCache;
   private FrameLayout root;
   private WebView web;
   private boolean ready, refreshing, resumed, scanning, observing, rendererGone;
   private long backgroundVersion;
+  private volatile long artGeneration;
   private long lastScan;
+  private boolean scanAgain;
   private Runnable selectedArtwork;
   private final Runnable midnight =
       () -> {
@@ -79,6 +77,11 @@ public final class MainActivity extends Activity {
     super.onCreate(state);
     prefs = getSharedPreferences("niaktv", 0);
     wallpapers = new WallpaperStore(this);
+    artworkCache = new ArtworkCache(getCacheDir(), 64, 24L * 1024 * 1024);
+    File scene = new File(getCacheDir(), "scene.webp");
+    File original = new File(getFilesDir(), "daily-cinema.webp");
+    if (cinema() && scene.length() > 0 && scene.lastModified() >= original.lastModified())
+      backgroundVersion = scene.lastModified();
     getWindow()
         .getDecorView()
         .setSystemUiVisibility(
@@ -93,7 +96,8 @@ public final class MainActivity extends Activity {
     web.setBackgroundColor(Color.rgb(7, 9, 14));
     web.setOverScrollMode(View.OVER_SCROLL_NEVER);
     web.setFocusableInTouchMode(true);
-    web.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_BOUND, true);
+    web.setRendererPriorityPolicy(
+        WebView.RENDERER_PRIORITY_BOUND, prefs.getBoolean("performance", false));
     WebSettings s = web.getSettings();
     s.setJavaScriptEnabled(true);
     s.setAllowFileAccess(false);
@@ -144,7 +148,7 @@ public final class MainActivity extends Activity {
     web.loadUrl(ORIGIN + "index.html");
     artworkIO.execute(
         () -> {
-          if (!cinema()) return;
+          if (!cinema() || backgroundVersion != 0) return;
           Bitmap initial = wallpapers.cached();
           if (initial == null) initial = wallpapers.fallback();
           publishBackground(initial);
@@ -155,6 +159,7 @@ public final class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    HomeRedirectService.homeResumed();
     if (rendererGone) {
       recreate();
       return;
@@ -164,26 +169,26 @@ public final class MainActivity extends Activity {
       web.onResume();
       web.resumeTimers();
     }
-    if (showSelection()
-        && !observing
-        && checkSelfPermission("android.permission.READ_TV_LISTINGS")
-            == PackageManager.PERMISSION_GRANTED) {
-      getContentResolver()
-          .registerContentObserver(
-              Uri.parse("content://android.media.tv/preview_program"), true, programsObserver);
-      getContentResolver()
-          .registerContentObserver(
-              Uri.parse("content://android.media.tv/watch_next_program"), true, programsObserver);
-      observing = true;
-    }
+    syncProgramObserver();
     if (SystemClock.elapsedRealtime() - lastScan > 10000) scan();
     js("window.NiakUI&&NiakUI.refreshClock()");
     updateWallpaper(false);
     scheduleMidnight();
+    postModel();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    HomeRedirectService.homeIntentDelivered();
+    if (Intent.ACTION_MAIN.equals(intent.getAction()) && intent.hasCategory(Intent.CATEGORY_HOME))
+      js("window.NiakUI&&NiakUI.key('back')");
   }
 
   @Override
   protected void onPause() {
+    HomeRedirectService.homeHidden();
     resumed = false;
     main.removeCallbacks(midnight);
     main.removeCallbacks(reloadPrograms);
@@ -236,19 +241,15 @@ public final class MainActivity extends Activity {
     String path = uri.getPath();
     if (path == null || path.contains("..")) return response("text/plain", new byte[0], 403);
     try {
-      if (path.startsWith("/icons/")) {
-        byte[] data = icons.get(URLDecoder.decode(path.substring(7), "UTF-8"));
-        return response("image/png", data == null ? new byte[0] : data, 200);
-      }
-      if (path.equals("/background.jpg"))
-        return response(
-            "image/jpeg",
-            new android.util.AtomicFile(new File(getCacheDir(), "scene.jpg")).openRead());
+      if (path.equals("/background.webp"))
+        return cachedImage(
+            "image/webp",
+            new android.util.AtomicFile(new File(getCacheDir(), "scene.webp")).openRead());
       if (path.startsWith("/art/")) {
         String filename = path.substring(5);
-        if (!filename.matches("[a-f0-9]{64}\\.jpg"))
+        if (!filename.matches("[a-f0-9]{64}\\.webp"))
           return response("text/plain", new byte[0], 403);
-        return response("image/jpeg", new FileInputStream(new File(getCacheDir(), filename)));
+        return cachedImage("image/webp", new FileInputStream(new File(getCacheDir(), filename)));
       }
       String filename = path.substring(1);
       String mime =
@@ -256,7 +257,9 @@ public final class MainActivity extends Activity {
               ? "text/css"
               : filename.endsWith(".js")
                   ? "application/javascript"
-                  : filename.endsWith(".ttf") ? "font/ttf" : "text/html";
+                  : filename.endsWith(".woff2")
+                      ? "font/woff2"
+                      : filename.endsWith(".ttf") ? "font/ttf" : "text/html";
       return response(mime, getAssets().open(filename));
     } catch (IOException e) {
       return response("text/plain", new byte[0], 404);
@@ -267,6 +270,15 @@ public final class MainActivity extends Activity {
     WebResourceResponse r = response(mime, new ByteArrayInputStream(bytes));
     r.setStatusCodeAndReasonPhrase(status, status == 200 ? "OK" : "Unavailable");
     return r;
+  }
+
+  private WebResourceResponse cachedImage(String mime, InputStream stream) {
+    WebResourceResponse result = response(mime, stream);
+    Map<String, String> headers = new HashMap<>(result.getResponseHeaders());
+    // Artwork is addressed by source hash; the background URL includes its file version.
+    headers.put("Cache-Control", "private, max-age=31536000, immutable");
+    result.setResponseHeaders(headers);
+    return result;
   }
 
   private WebResourceResponse response(String mime, InputStream stream) {
@@ -302,6 +314,59 @@ public final class MainActivity extends Activity {
     return "fr".equals(language()) ? french : english;
   }
 
+  private boolean nativeHome() {
+    ResolveInfo home =
+        getPackageManager()
+            .resolveActivity(
+                new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME),
+                PackageManager.MATCH_DEFAULT_ONLY);
+    return home != null
+        && home.activityInfo != null
+        && getPackageName().equals(home.activityInfo.packageName);
+  }
+
+  private boolean stockHomeEnabled() {
+    try {
+      return getPackageManager()
+          .getApplicationInfo(
+              "com.google.android.tvlauncher", PackageManager.MATCH_DISABLED_COMPONENTS)
+          .enabled;
+    } catch (PackageManager.NameNotFoundException absent) {
+      return false;
+    }
+  }
+
+  private String selectionApp() {
+    return DefaultApps.streaming(prefs.getString("selectionApp", ""), launches.keySet());
+  }
+
+  private boolean nuvioSelection() {
+    return showSelection() && "com.nuvio.tv".equals(selectionApp());
+  }
+
+  private void syncProgramObserver() {
+    boolean wanted =
+        resumed
+            && nuvioSelection()
+            && checkSelfPermission("android.permission.READ_TV_LISTINGS")
+                == PackageManager.PERMISSION_GRANTED;
+    if (wanted == observing) return;
+    if (observing) getContentResolver().unregisterContentObserver(programsObserver);
+    if (wanted) {
+      getContentResolver()
+          .registerContentObserver(
+              Uri.parse("content://android.media.tv/preview_program"), true, programsObserver);
+      getContentResolver()
+          .registerContentObserver(
+              Uri.parse("content://android.media.tv/watch_next_program"), true, programsObserver);
+    }
+    observing = wanted;
+  }
+
+  private int resumeLimit() {
+    return ResumeLimit.valid(prefs.getInt("resumeLimit", 3));
+  }
+
   private boolean showSelection() {
     return !prefs.getBoolean("performance", false) && prefs.getBoolean("showSelection", true);
   }
@@ -317,24 +382,14 @@ public final class MainActivity extends Activity {
   }
 
   private void applyAppearance() {
+    artGeneration++;
+    if (web != null)
+      web.setRendererPriorityPolicy(
+          WebView.RENDERER_PRIORITY_BOUND, prefs.getBoolean("performance", false));
     main.removeCallbacks(reloadPrograms);
     if (selectedArtwork != null) main.removeCallbacks(selectedArtwork);
-    if (observing) {
-      getContentResolver().unregisterContentObserver(programsObserver);
-      observing = false;
-    }
-    if (!showSelection()) resumes.clear();
-    else if (resumed
-        && checkSelfPermission("android.permission.READ_TV_LISTINGS")
-            == PackageManager.PERMISSION_GRANTED) {
-      getContentResolver()
-          .registerContentObserver(
-              Uri.parse("content://android.media.tv/preview_program"), true, programsObserver);
-      getContentResolver()
-          .registerContentObserver(
-              Uri.parse("content://android.media.tv/watch_next_program"), true, programsObserver);
-      observing = true;
-    }
+    if (!nuvioSelection()) resumes.clear();
+    syncProgramObserver();
     postModel();
     scan();
     if (cinema()) {
@@ -355,11 +410,21 @@ public final class MainActivity extends Activity {
       JSONObject model =
           new JSONObject()
               .put("language", language())
+              .put("nativeHome", nativeHome())
+              .put("stockHomeEnabled", stockHomeEnabled())
+              .put("homeRedirectEnabled", prefs.getBoolean("redirect", true))
+              .put("homeRedirectConnected", HomeRedirectService.isConnected())
               .put("showSelection", showSelection())
+              .put("resumeLimit", resumeLimit())
               .put("performance", prefs.getBoolean("performance", false))
               .put("background", background())
               .put("palette", prefs.getString("palette", "mint"))
-              .put("defaultStreamingApp", DefaultApps.streaming(launches.keySet()))
+              .put("defaultStreamingApp", selectionApp())
+              .put(
+                  "selectionAppPreference",
+                  launches.containsKey(prefs.getString("selectionApp", ""))
+                      ? prefs.getString("selectionApp", "")
+                      : "")
               .put("nuvioInstalled", launches.containsKey("com.nuvio.tv"))
               .put("apps", appData)
               .put("inputs", inputData)
@@ -368,6 +433,7 @@ public final class MainActivity extends Activity {
                   new JSONArray(list("favorites", DefaultApps.selection(launches.keySet()))))
               .put("order", new JSONArray(list("order", USUAL)))
               .put("wallpaperTitle", wallpapers.title())
+              .put("wallpaperReleaseDate", wallpapers.releaseDate())
               .put("wallpaperStatus", wallpapers.status())
               .put("backgroundVersion", backgroundVersion)
               .put("tmdbConfigured", wallpapers.configured())
@@ -391,15 +457,17 @@ public final class MainActivity extends Activity {
   }
 
   private void scan() {
-    if (scanning) return;
+    if (scanning) {
+      scanAgain = true;
+      return;
+    }
     scanning = true;
     catalogueIO.execute(
         () -> {
           JSONArray apps = new JSONArray(), sources = new JSONArray();
           Map<String, Intent> found = new LinkedHashMap<>();
           List<String> ids = new ArrayList<>();
-          List<ResumeStore.Item> programs =
-              showSelection() ? ResumeStore.read(this) : Collections.emptyList();
+          List<ResumeStore.Item> programs = new ArrayList<>();
           try {
             PackageManager pm = getPackageManager();
             List<ResolveInfo> results =
@@ -422,22 +490,18 @@ public final class MainActivity extends Activity {
                           Intent.FLAG_ACTIVITY_NEW_TASK
                               | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
               found.put(id, launch);
-              if (!icons.containsKey(id)) {
-                Bitmap b = Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888);
-                Canvas canvas = new Canvas(b);
-                Drawable icon = r.loadIcon(pm);
-                icon.setBounds(4, 4, 92, 92);
-                icon.draw(canvas);
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                b.compress(Bitmap.CompressFormat.PNG, 100, out);
-                icons.put(id, out.toByteArray());
-                b.recycle();
-              }
-              apps.put(
-                  new JSONObject()
-                      .put("id", id)
-                      .put("name", r.loadLabel(pm).toString())
-                      .put("icon", ORIGIN + "icons/" + id));
+              apps.put(new JSONObject().put("id", id).put("name", r.loadLabel(pm).toString()));
+            }
+            if (showSelection()
+                && "com.nuvio.tv"
+                    .equals(
+                        DefaultApps.streaming(prefs.getString("selectionApp", ""), found.keySet())))
+              programs.addAll(ResumeLimit.apply(ResumeStore.read(this), resumeLimit()));
+            for (int index = 0; index < programs.size(); index++) {
+              ResumeStore.Item item = programs.get(index);
+              item.size = ArtworkSize.at(index);
+              File cached = artworkCache.get(item.art, item.size.key);
+              if (cached != null) item.image = ORIGIN + "art/" + cached.getName();
             }
             TvInputManager manager = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
             List<TvInputInfo> hdmi = new ArrayList<>();
@@ -471,50 +535,81 @@ public final class MainActivity extends Activity {
                 launches.putAll(found);
                 inputIds.clear();
                 inputIds.addAll(ids);
+                artGeneration++;
                 resumes.clear();
-                if (showSelection()) resumes.addAll(programs);
+                if (nuvioSelection()) resumes.addAll(programs);
+                syncProgramObserver();
                 lastScan = SystemClock.elapsedRealtime();
                 postModel();
-                if (showSelection())
-                  loadProgramArt(programs.subList(0, Math.min(3, programs.size())));
+                if (nuvioSelection())
+                  loadProgramArt(programs.subList(0, Math.min(resumeLimit(), programs.size())));
+                if (scanAgain) {
+                  scanAgain = false;
+                  scan();
+                }
               });
         });
   }
 
   private void loadProgramArt(List<ResumeStore.Item> items) {
-    if (!showSelection()) return;
+    if (!nuvioSelection()) return;
+    final long generation = artGeneration;
     for (ResumeStore.Item item : items) {
       String address = item.art;
       if (address == null || !address.startsWith("https://") || address.startsWith(ORIGIN))
         continue;
       artworkIO.execute(
           () -> {
-            if (!showSelection()) return;
+            if (!showSelection() || generation != artGeneration) return;
             try {
-              String url =
-                  address.replaceAll(
-                      "image\\.tmdb\\.org/t/p/(?:original|w[0-9]+)/", "image.tmdb.org/t/p/w1280/");
-              String name = hash(url) + ".jpg";
-              File file = new File(getCacheDir(), name);
-              if (!file.exists()) {
-                byte[] data = WallpaperStore.fetch(url, 5 * 1024 * 1024, null);
-                Bitmap image = WallpaperStore.decode(new ByteArrayInputStream(data));
-                if (image == null) return;
-                Bitmap small =
-                    Bitmap.createScaledBitmap(
-                        image,
-                        Math.min(1024, image.getWidth()),
-                        Math.max(
-                            1, (int) (image.getHeight() * Math.min(1024f / image.getWidth(), 1))),
-                        true);
-                try (FileOutputStream out = new FileOutputStream(file)) {
-                  small.compress(Bitmap.CompressFormat.JPEG, 86, out);
+              String url = ArtworkCache.source(address);
+              File file = artworkCache.get(url, item.size.key);
+              if (file == null) {
+                File legacy = artworkCache.legacy(url);
+                File source = artworkCache.get(url);
+                if (source == null) source = legacy;
+                Bitmap image = null;
+                if (source != null) {
+                  try (InputStream in = new FileInputStream(source)) {
+                    image = WallpaperStore.decode(in);
+                  }
                 }
-                if (small != image) small.recycle();
-                image.recycle();
-                trimArt();
+                // A newly promoted card may need a larger source; never enlarge its thumbnail.
+                if (image != null
+                    && item.size == ArtworkSize.HERO
+                    && image.getWidth() < 1024
+                    && url.startsWith("https://image.tmdb.org/")) {
+                  image.recycle();
+                  image = null;
+                }
+                if (image == null) {
+                  String download =
+                      item.size == ArtworkSize.CARD
+                          ? url.replace("image.tmdb.org/t/p/w1280/", "image.tmdb.org/t/p/w780/")
+                          : url;
+                  byte[] data = WallpaperStore.fetch(download, 5 * 1024 * 1024, null);
+                  image = WallpaperStore.decode(new ByteArrayInputStream(data));
+                  if (image == null) return;
+                  // Keep an uncropped source in the same bounded cache for future recency changes.
+                  try {
+                    ByteArrayOutputStream original = new ByteArrayOutputStream();
+                    if (image.compress(ImageCodec.format(), ImageCodec.QUALITY, original))
+                      artworkCache.put(url, original.toByteArray());
+                  } catch (IOException ignored) {
+                    // Still publish the visible rendition if retaining the source fails.
+                  }
+                }
+                Bitmap small = ImageCodec.resize(image, item.size);
+                try {
+                  ByteArrayOutputStream out = new ByteArrayOutputStream();
+                  if (!small.compress(ImageCodec.format(), ImageCodec.QUALITY, out)) return;
+                  file = artworkCache.put(url, item.size.key, out.toByteArray());
+                } finally {
+                  if (small != image) small.recycle();
+                  image.recycle();
+                }
               }
-              file.setLastModified(System.currentTimeMillis());
+              String name = file.getName();
               main.post(
                   () -> {
                     if (!isDestroyed() && resumes.contains(item)) {
@@ -531,21 +626,6 @@ public final class MainActivity extends Activity {
             }
           });
     }
-  }
-
-  private static String hash(String value) throws Exception {
-    byte[] digest =
-        MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
-    StringBuilder s = new StringBuilder();
-    for (byte b : digest) s.append(String.format(Locale.ROOT, "%02x", b));
-    return s.toString();
-  }
-
-  private void trimArt() {
-    File[] files = getCacheDir().listFiles((dir, name) -> name.matches("[a-f0-9]{64}\\.jpg"));
-    if (files == null || files.length <= 16) return;
-    Arrays.sort(files, Comparator.comparingLong(File::lastModified));
-    for (int i = 0; i < files.length - 16; i++) files[i].delete();
   }
 
   private void launch(Intent intent) {
@@ -591,6 +671,22 @@ public final class MainActivity extends Activity {
             .apply();
         applyAppearance();
         break;
+      case "selection-app":
+        if (id.isEmpty() || launches.containsKey(id)) {
+          prefs.edit().putString("selectionApp", id).apply();
+          artGeneration++;
+          resumes.clear();
+          syncProgramObserver();
+          postModel();
+          scan();
+        }
+        break;
+      case "resume-limit":
+        artGeneration++;
+        prefs.edit().putInt("resumeLimit", ResumeLimit.next(resumeLimit())).apply();
+        scan();
+        postModel();
+        break;
       case "performance":
         prefs.edit().putBoolean("performance", !prefs.getBoolean("performance", false)).apply();
         applyAppearance();
@@ -620,7 +716,7 @@ public final class MainActivity extends Activity {
                     new ComponentName("org.droidtv.playtv", "org.droidtv.playtv.PlayTvActivity")));
         break;
       case "art":
-        if (!showSelection()) break;
+        if (!nuvioSelection()) break;
         if (selectedArtwork != null) main.removeCallbacks(selectedArtwork);
         selectedArtwork =
             () -> {
@@ -659,14 +755,24 @@ public final class MainActivity extends Activity {
         }
         break;
       case "move":
+      case "move-favorite":
         try {
           JSONObject move = new JSONObject(id);
-          List<String> order =
-              Order.reconcile(list("order", USUAL), new ArrayList<>(launches.keySet()));
+          boolean favoriteMove = "move-favorite".equals(action);
+          List<String> order;
+          if (favoriteMove) {
+            order =
+                new ArrayList<>(
+                    new LinkedHashSet<>(
+                        list("favorites", DefaultApps.selection(launches.keySet()))));
+            order.removeIf(app -> !launches.containsKey(app));
+          } else {
+            order = Order.reconcile(list("order", USUAL), new ArrayList<>(launches.keySet()));
+          }
           prefs
               .edit()
               .putString(
-                  "order",
+                  favoriteMove ? "favorites" : "order",
                   android.text.TextUtils.join(
                       ",", Order.move(order, move.getString("id"), move.getInt("position"))))
               .apply();
@@ -701,17 +807,48 @@ public final class MainActivity extends Activity {
         postModel();
         break;
       case "home":
+        if (nativeHome()) {
+          Toast.makeText(
+                  this,
+                  tr(
+                      "NiakTV est l’accueil Android par défaut",
+                      "NiakTV is the default Android Home"),
+                  Toast.LENGTH_SHORT)
+              .show();
+          break;
+        }
         prefs.edit().putBoolean("redirect", true).apply();
         launch(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
         break;
       case "stock":
         prefs.edit().putBoolean("redirect", false).apply();
-        launch(
-            new Intent()
-                .setComponent(
-                    new ComponentName(
-                        "com.google.android.tvlauncher",
-                        "com.google.android.tvlauncher.MainActivity")));
+        if (stockHomeEnabled()) {
+          launch(
+              new Intent()
+                  .setComponent(
+                      new ComponentName(
+                          "com.google.android.tvlauncher",
+                          "com.google.android.tvlauncher.MainActivity")));
+        } else {
+          new AlertDialog.Builder(this)
+              .setTitle(tr("Réactiver l’accueil Google", "Restore Google Home"))
+              .setMessage(
+                  tr(
+                      "Dans l’écran suivant, choisissez Activer, puis appuyez sur Accueil. La"
+                          + " redirection NiakTV est arrêtée. Vos données Google sont conservées.",
+                      "On the next screen, choose Enable, then press Home. NiakTV redirection is"
+                          + " off. Your Google data is retained."))
+              .setNegativeButton(tr("Annuler", "Cancel"), null)
+              .setPositiveButton(
+                  tr("Ouvrir les réglages", "Open settings"),
+                  (dialog, button) ->
+                      launch(
+                          new Intent(
+                              Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                              Uri.parse("package:com.google.android.tvlauncher"))))
+              .show();
+        }
+        postModel();
         break;
       case "settings":
         launch(new Intent(Settings.ACTION_SETTINGS));
@@ -814,16 +951,16 @@ public final class MainActivity extends Activity {
       return;
     }
     android.util.AtomicFile file =
-        new android.util.AtomicFile(new File(getCacheDir(), "scene.jpg"));
+        new android.util.AtomicFile(new File(getCacheDir(), "scene.webp"));
     FileOutputStream out = null;
     try {
       out = file.startWrite();
-      image.compress(Bitmap.CompressFormat.JPEG, 90, out);
+      image.compress(ImageCodec.format(), ImageCodec.QUALITY, out);
       file.finishWrite(out);
       main.post(
           () -> {
             if (!isDestroyed()) {
-              backgroundVersion = System.currentTimeMillis();
+              backgroundVersion = file.getBaseFile().lastModified();
               postModel();
             }
           });

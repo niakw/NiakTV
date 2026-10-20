@@ -19,6 +19,10 @@ final class DefaultApps {
           "fr.m6.m6replay",
           "com.google.android.youtube.tv");
 
+  static String streaming(String preferred, Set<String> installed) {
+    return preferred != null && installed.contains(preferred) ? preferred : streaming(installed);
+  }
+
   static String streaming(Set<String> installed) {
     for (String id : STREAMING) if (installed.contains(id)) return id;
     return "";

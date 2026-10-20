@@ -1,12 +1,12 @@
 @font-face {
   font-family: Manrope;
-  src: url("fonts/manrope.ttf") format("truetype");
+  src: url("fonts/manrope.woff2") format("woff2");
   font-weight: 200 800;
   font-display: swap;
 }
 @font-face {
   font-family: Instrument;
-  src: url("fonts/instrument-serif.ttf") format("truetype");
+  src: url("fonts/instrument-serif.woff2") format("woff2");
   font-display: swap;
 }
 :root {
@@ -175,10 +175,10 @@ h1 {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
-  background: #172020;
+  background: rgba(12, 22, 27, 0.3);
 }
 .feature.artwork {
-  background: #131920;
+  background: rgba(12, 22, 27, 0.06);
 }
 .feature-image {
   position: absolute;
@@ -187,7 +187,7 @@ h1 {
   height: 100%;
   object-fit: cover;
   object-position: 65% 40%;
-  opacity: 0.9;
+  opacity: 0.48;
 }
 .feature-shade {
   position: absolute;
@@ -195,11 +195,11 @@ h1 {
   background:
     linear-gradient(
       90deg,
-      rgba(8, 14, 18, 0.95),
-      rgba(8, 14, 18, 0.72) 40%,
+      rgba(8, 14, 18, 0.72),
+      rgba(8, 14, 18, 0.35) 45%,
       rgba(8, 14, 18, 0.05)
     ),
-    linear-gradient(0deg, rgba(7, 11, 16, 0.65), transparent 70%);
+    linear-gradient(0deg, rgba(7, 11, 16, 0.42), transparent 70%);
 }
 .feature-content {
   position: relative;
@@ -295,9 +295,9 @@ h1 {
 .empty-feature {
   background: linear-gradient(
     110deg,
-    #172421,
-    #142222 50%,
-    rgba(15, 24, 29, 0.65)
+    rgba(23, 36, 33, 0.62),
+    rgba(20, 34, 34, 0.45) 50%,
+    rgba(15, 24, 29, 0.32)
   );
   border-color: rgba(214, 236, 206, 0.18);
 }
@@ -335,7 +335,7 @@ h1 {
   text-align: left;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(15, 20, 27, 0.88);
+  background: rgba(12, 20, 28, 0.06);
   overflow: hidden;
   position: relative;
   padding: 0;
@@ -346,15 +346,15 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.58;
+  opacity: 0.52;
 }
 .resume-card .queue-shade {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     0deg,
-    #0e141d 0%,
-    rgba(14, 20, 29, 0.55) 50%,
+    rgba(8, 14, 22, 0.78) 0%,
+    rgba(14, 20, 29, 0.24) 50%,
     transparent
   );
 }
@@ -404,7 +404,7 @@ h1 {
   padding: 0 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 7px;
-  background: rgba(17, 23, 30, 0.84);
+  background: rgba(17, 23, 30, 0.52);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -447,7 +447,7 @@ h1 {
   max-width: 180px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(17, 22, 29, 0.86);
+  background: rgba(17, 22, 29, 0.5);
   padding: 0 13px;
   display: flex;
   align-items: center;
@@ -603,11 +603,26 @@ footer {
 }
 .close {
   background: transparent;
-  font-size: 28px;
-  color: #a9b6b8;
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  padding: 0;
+  line-height: 1;
+  color: #c5d1d2;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
+}
+.close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.close:focus-visible, .close.is-focused {
+  background: #24363d;
 }
 .menu-item {
   width: 100%;
@@ -892,3 +907,19 @@ body.performance button:focus-visible {
 body.performance .appmark img {
   opacity: 1;
 }
+
+/* Shared vector marks: no raster icon requests or image decoding. */
+.appmark svg.ui-symbol, .favorite svg.ui-symbol, .empty-art svg.ui-symbol {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.app-monogram rect { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.app-monogram text { fill: currentColor; font: 600 15px Manrope, sans-serif; }
+.feature-content, .queue-content { text-shadow: 0 1px 4px rgba(0, 0, 0, 0.72); }
+.play-cta { text-shadow: none; }
+
+.feature-subtitle, .queue-meta { color: #e1e9e6; }
+.feature-content, .queue-content { text-shadow: 0 1px 2px #000, 0 2px 7px rgba(0,0,0,.75); }

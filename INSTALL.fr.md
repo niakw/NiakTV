@@ -31,6 +31,25 @@ Si Android propose de choisir l’application d’accueil par défaut, sélectio
 
 Ce service facultatif cible le lanceur Google Android TV. Il ne remplace pas universellement tous les lanceurs fabricants. Il ne lit pas le contenu des fenêtres et ne nécessite aucune désactivation d’app système.
 
+Le sous-titre de **Réglages → Bouton Accueil** distingue l’accueil Android natif, le relais connecté et la redirection désactivée dans NiakTV. Si le relais est déconnecté, ouvrez ce réglage et vérifiez le service NiakTV dans l’accessibilité Android. Un service désactivé par le système doit être réactivé par l’utilisateur ; NiakTV ne peut pas s’accorder cette autorisation. Évitez l’arrêt forcé du lanceur. Google reste installé et le retour à l’accueil d’origine reste disponible.
+
+<a id="advanced-home"></a>
+
+### Accueil natif sur un firmware qui privilégie Google
+
+**Configuration avancée facultative :** installez et ouvrez d’abord NiakTV avec succès. Désactiver le lanceur Google modifie l’accueil système et les écrans propres à ce lanceur ; le package et ses données restent présents. Ce choix doit être explicite. L’app n’exécute pas ces commandes à votre place.
+
+```sh
+adb -s TV_SERIAL shell am start -n tv.niak.launcher/.MainActivity
+adb -s TV_SERIAL shell pm disable-user --user 0 com.google.android.tvlauncher
+adb -s TV_SERIAL shell cmd package set-home-activity --user 0 tv.niak.launcher/.MainActivity
+adb -s TV_SERIAL shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME
+```
+
+Remplacez `TV_SERIAL` par l’appareil listé par `adb devices`. Vérifiez que le résolveur indique `tv.niak.launcher/.MainActivity`, puis testez Accueil depuis NiakTV et une autre app. Dans ce mode, Accueil ouvre directement NiakTV sans nécessiter le relais de compatibilité.
+
+Pour rétablir Google : **Réglages → Accueil d’origine → Ouvrir les réglages → Activer**, puis appuyez sur Accueil. La redirection NiakTV est coupée et les réglages Android de Google s’ouvrent. Solution ADB de secours : `adb -s TV_SERIAL shell pm default-state --user 0 com.google.android.tvlauncher`, puis choisissez **Accueil d’origine** dans NiakTV. Aucune donnée d’app n’est effacée.
+
 ## 4. Choisir son ambiance
 
 | Vous souhaitez…                                            | Choisissez…                                                                                             |
@@ -45,13 +64,17 @@ Le mode performance conserve vos choix précédents de fond et de bloc pour les 
 
 Avec Nuvio installé, **Reprises Nuvio** peut demander l’accès aux programmes. Sans Nuvio, la carte principale devient un raccourci vers une app de streaming compatible déjà installée, ou disparaît si aucune n’est trouvée. L’historique des autres services n’est pas importé.
 
+Les affiches des reprises sont conservées dans un cache privé limité à 64 fichiers et 24 Mo. Par défaut, seules les trois reprises les plus récentes sont affichées et préchargées. **Réglages → Nombre de reprises** fait défiler **3, 5, 8 ou Toutes (32 maximum)** sur une seule ligne. Le nombre choisi limite aussi les téléchargements automatiques, sans modifier l’historique Nuvio. Les images servies par NiakTV (affiches et fond) utilisent WebP à qualité 80 ; les anciens fichiers sont convertis localement lorsque réutilisés. Les icônes d’apps utilisent des SVG compacts ou des monogrammes intégrés, sans image raster à charger. Un appui long sur un raccourci de Ma sélection permet de le déplacer dans cette rangée ; Apps TV conserve son ordre indépendant. Les formats suivent automatiquement le classement : bannière jusqu’à 1 200 × 308 px pour la première reprise, petites cartes jusqu’à 288 × 332 px pour les suivantes, recadrées avant compression et sans agrandissement artificiel. Le cache distingue l’URL de l’œuvre et sa variante ; un changement de position génère la variante manquante ou réutilise celle déjà prête. Les sources non recadrées et les variantes partagent la même limite de cache. Les affiches déjà en cache sont rattachées avant le rendu et les cartes inchangées restent en place au retour. Le fond cinéma préparé est réutilisé au démarrage. Le mode performance continue de couper les reprises et leurs téléchargements. Android peut vider son cache : un nouveau téléchargement sera alors nécessaire.
+
+**Application de Ma sélection** permet de choisir Automatique ou une app installée (YouTube, Apple TV, Netflix, etc.). Les reprises Nuvio ne sont lues et préchargées que lorsque Nuvio est l’app effective du bloc. Une autre app affiche son raccourci. Si l’app choisie est désinstallée, NiakTV revient automatiquement à une app présente, ou masque la carte si aucune n’est trouvée.
+
 ## Mises à jour
 
 Utilisez `adb install -r` avec un APK signé par **la même clé** que la version installée. Les builds debug CI et locaux peuvent employer des clés différentes ; une signature stable n’est pas garantie entre deux builds CI. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indique une incompatibilité de signature : récupérez un APK construit avec la clé d’origine. Désinstaller n’est pas une mise à jour transparente : cela supprime les préférences et la clé TMDB enregistrée.
 
 ## Revenir à l’accueil d’origine
 
-Ouvrez **Réglages → Accueil d’origine** pour couper la redirection NiakTV et ouvrir Google. Pour un retour durable, désactivez uniquement le service **NiakTV — bouton Accueil** dans les paramètres d’accessibilité Android, puis sélectionnez l’accueil d’origine si la TV propose ce choix. Cette action cible actuellement Google Android TV ; un autre accueil fabricant peut nécessiter une sélection dans les paramètres Android.
+Ouvrez **Réglages → Accueil d’origine** pour couper la redirection NiakTV et ouvrir Google. Si Google a été désactivé avec la configuration avancée ci-dessus, NiakTV vous guide vers ses paramètres Android pour choisir **Activer** au préalable. Pour un retour durable, désactivez uniquement le service **NiakTV — bouton Accueil** dans les paramètres d’accessibilité Android, puis sélectionnez l’accueil d’origine si la TV propose ce choix. Cette action cible actuellement Google Android TV ; un autre accueil fabricant peut nécessiter une sélection dans les paramètres Android.
 
 ## Dépannage
 

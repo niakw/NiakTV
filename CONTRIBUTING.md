@@ -26,6 +26,10 @@ On Windows, use `gradlew.bat` instead of `./gradlew`.
 
 The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. Follow the [installation guide](INSTALL.md) to try it on a TV. Local debug builds use `.signing/niaktv-debug.keystore` if present; keep it private and retain the signing key for future updates.
 
+### Rebuild the font assets
+
+The APK bundles WOFF2 fonts. Original TTF files are kept in `tools/font-sources/`; their OFL notices remain in `app/src/main/assets/fonts/`. With `fonttools[woff]==4.60.1` installed in a local Python environment, run `python tools/compress_fonts.py`. The conversion keeps all glyphs, metrics and variable weight axes and checks them against the source. It does not subset characters.
+
 ### Find the relevant code
 
 | Area                                                 | Location                                                     |
@@ -76,6 +80,10 @@ node --check app/src/main/assets/ui.js
 Sous Windows, utilisez `gradlew.bat` à la place de `./gradlew`.
 
 L’APK debug se trouve dans `app/build/outputs/apk/debug/app-debug.apk`. Suivez le [guide d’installation](INSTALL.fr.md) pour l’essayer sur une TV. Si `.signing/niaktv-debug.keystore` existe, les builds debug locaux l’utilisent ; gardez cette clé privée et conservez-la pour les mises à jour.
+
+### Régénérer les polices
+
+L’APK embarque les polices WOFF2. Les sources TTF restent dans `tools/font-sources/` et les notices OFL dans `app/src/main/assets/fonts/`. Avec `fonttools[woff]==4.60.1` installé dans un environnement Python local, lancez `python tools/compress_fonts.py`. La conversion conserve et vérifie les glyphes, métriques et axes de graisses variables. Aucun caractère n’est retiré.
 
 ### Trouver le code concerné
 

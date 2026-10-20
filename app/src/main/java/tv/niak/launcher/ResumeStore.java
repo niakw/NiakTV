@@ -11,6 +11,7 @@ final class ResumeStore {
   static final class Item {
     String id, title, episode, art, launch;
     String image = "";
+    ArtworkSize size = ArtworkSize.CARD;
     long position, duration, engagement;
 
     JSONObject json() throws JSONException {

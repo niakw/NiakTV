@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="assets/screenshots/home-fr.png" alt="Accueil NiakTV : Ma sélection, entrées et dock des apps TV" width="960">
-  <br><sub>Capture de NiakTV sur Android TV, avec une sélection d’apps neutre et un flux de reprises vide. Aucun historique de visionnage personnel n’est affiché.</sub>
+  <br><sub>Aperçu de l’interface avec une sélection d’apps de démonstration et un flux de reprises vide. Aucun historique de visionnage personnel n’est affiché.</sub>
 </p>
 
 ---
@@ -24,11 +24,11 @@
 
 | À votre façon                | Ce que vous retrouvez                                                                                                                                                                                                         |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Un peu de cinéma**         | Des fonds TMDB quotidiens issus du catalogue des films à l’affiche. Le titre original du film reste discrètement crédité en bas à gauche.                                                                                     |
-| **Votre prochaine séance**   | Les vraies reprises Nuvio, leurs illustrations et leur progression lorsqu’elles sont publiées par l’app. Nuvio est facultatif : une app de streaming compatible déjà installée peut prendre sa place sous forme de raccourci. |
-| **Vos propres raccourcis**   | Choisissez vos favoris et réorganisez le dock par un appui long sur OK. Les entrées HDMI restent à portée de main.                                                                                                            |
+| **Un peu de cinéma**         | Des fonds TMDB quotidiens issus du catalogue des films à l’affiche. Le titre original du film et sa date de sortie restent discrètement crédités en bas à gauche.                                                                                     |
+| **Votre prochaine séance**   | Les vraies reprises Nuvio, leurs illustrations et leur progression lorsqu’elles sont publiées par l’app. Trois reprises par défaut, avec nombre configurable. Nuvio est facultatif : une app de streaming compatible déjà installée peut prendre sa place sous forme de raccourci. |
+| **Vos propres raccourcis**   | Réorganisez vos favoris et le dock des apps indépendamment par un appui long sur OK. Les entrées HDMI restent à portée de main.                                                                                                            |
 | **La liberté de simplifier** | Masquez Ma sélection, choisissez un fond uni ou un dégradé statique, puis une palette Menthe, Violet, Bleu ou Graphite.                                                                                                       |
-| **Un accueil plus léger**    | Le mode performance masque Ma sélection, utilise un fond uni et coupe le chargement des programmes et des images de contenu. Le focus télécommande reste visible.                                                             |
+| **Un accueil plus léger**    | Le mode performance masque Ma sélection, utilise un fond uni et coupe le chargement des programmes et des images de contenu. Affiches WebP adaptées aux cartes, icônes vectorielles compactes et polices WOFF2 allègent l’interface. Le focus télécommande reste visible.                                                             |
 | **Votre langue**             | Français, anglais ou langue du téléviseur. Les noms d’apps et de programmes gardent leurs libellés d’origine.                                                                                                                 |
 
 Aucune ligne sponsorisée, bande-annonce automatique ou analyse d’usage. L’interface et les polices sont stockées sur la TV. Les fonctions principales du lanceur ne nécessitent ni Nuvio ni compte TMDB.
@@ -45,7 +45,7 @@ NiakTV est actuellement distribué sous forme d’**APK de développement** dans
 
 **[Guide d’installation →](INSTALL.fr.md)** Commandes, premier démarrage, mises à jour, dépannage et retour à l’accueil d’origine.
 
-NiakTV conserve l’accès au lanceur d’origine. Le service Accueil facultatif assure la compatibilité avec certaines TV qui imposent Google ; il ne lit pas le contenu des fenêtres. Aucun composant système ne doit être supprimé ou désactivé.
+Le réglage Accueil dépend de la TV. NiakTV prend en charge le choix natif et un relais de compatibilité facultatif sans lecture du contenu des fenêtres. Certains firmwares demandent une configuration ADB explicite et réversible pour désactiver l’accueil Google avant qu’Android puisse choisir directement NiakTV. L’app ne désactive aucun composant système elle-même. Consultez le [guide Accueil et restauration](INSTALL.fr.md#advanced-home).
 
 <a id="customise"></a>
 
@@ -58,7 +58,7 @@ NiakTV conserve l’accès au lanceur d’origine. Le service Accueil facultatif
 | **Entre les deux**    | Masquez Ma sélection indépendamment, choisissez un dégradé et votre palette. Changer le style du fond ou la visibilité du bloc désactive le mode performance.                |
 | **Reprises**          | Avec Nuvio installé, autorisez l’accès aux programmes Android TV. Seuls les titres réellement publiés par Nuvio apparaissent ; leur ouverture suit le lien fourni par l’app. |
 
-Sans Nuvio, NiakTV peut proposer un raccourci vers une app de streaming compatible déjà installée. Sans app compatible, aucune carte de remplacement. Le lanceur n’invente pas d’historique de lecture pour les autres services.
+**Application de Ma sélection** permet de choisir Automatique ou une autre app installée et lançable, même avec Nuvio présent. Sans app compatible, aucune carte de remplacement. Le lanceur n’invente pas d’historique de lecture pour les autres services.
 
 TMDB utilise votre clé API ou votre jeton de lecture personnel, conservé dans le stockage privé de la TV et exclu des sauvegardes. Cet identifiant n’est jamais intégré à l’APK ni transmis à l’interface JavaScript. Les fonds unis et dégradés ne téléchargent aucune image de cinéma.
 

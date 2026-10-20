@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="assets/screenshots/home-en.png" alt="NiakTV home: My selection, inputs and TV app dock" width="960">
-  <br><sub>Captured from NiakTV on Android TV, with a neutral app selection and an empty watch-next feed. No personal viewing history is shown.</sub>
+  <br><sub>Interface preview with a neutral demo app selection and an empty watch-next feed. No personal viewing history is shown.</sub>
 </p>
 
 ---
@@ -24,11 +24,11 @@
 
 | Make it yours              | What you get                                                                                                                                                           |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **A little cinema**        | Daily TMDB backdrops from the now-playing catalogue. The film’s original title stays discreetly credited at the bottom left.                                           |
-| **Your next watch**        | Real Nuvio watch-next titles, artwork and progress when published by the app. Nuvio is optional: a supported installed streaming app can take its place as a shortcut. |
-| **Your own shortcuts**     | Choose favourites and reorder the app dock with a long press on OK. HDMI inputs stay within reach.                                                                     |
+| **A little cinema**        | Daily TMDB backdrops from the now-playing catalogue. The film’s original title and release date stay discreetly credited at the bottom left.                                           |
+| **Your next watch**        | Real Nuvio watch-next titles, artwork and progress when published by the app. Three resume items by default, with a configurable count. Pick another installed app to use its shortcut instead. |
+| **Your own shortcuts**     | Reorder your favourites and the app dock independently with a long press on OK. HDMI inputs stay within reach.                                                                     |
 | **Room to keep it simple** | Hide My selection, use a solid colour or a static gradient, and choose Mint, Violet, Blue or Graphite.                                                                 |
-| **A lighter home**         | Performance mode hides My selection, uses a solid background and stops programme and content-image loading. The remote focus stays visible.                            |
+| **A lighter home**         | Performance mode hides My selection, uses a solid background and stops programme and content-image loading. Sized WebP artwork, compact vector icons and WOFF2 fonts keep the interface light. The remote focus stays visible.                            |
 | **Your language**          | English, French or the TV’s language. App and programme names keep their original labels.                                                                              |
 
 No sponsored rows, autoplay trailers or analytics. The interface and fonts are stored on the TV. No Nuvio installation or TMDB account is needed for the launcher’s core features.
@@ -45,7 +45,7 @@ NiakTV is currently distributed as a **development APK** through [GitHub Actions
 
 **[Installation guide →](INSTALL.md)** Includes commands, first setup, updates, troubleshooting and how to return to the original home.
 
-NiakTV keeps the original launcher available. The optional Home accessibility service provides compatibility with some TVs that enforce Google home; it does not read window content. No system app needs to be removed or disabled.
+Home setup depends on the TV. NiakTV supports the native Home choice and an optional compatibility relay without reading window content. Some firmwares require an explicit, reversible ADB setup to disable Google home before Android can select NiakTV directly. The app never disables system components itself. See the [Home setup and restore guide](INSTALL.md#advanced-home).
 
 <a id="customise"></a>
 
@@ -58,7 +58,7 @@ NiakTV keeps the original launcher available. The optional Home accessibility se
 | **Somewhere in between** | Hide My selection independently, choose a gradient and set your palette. Choosing a background or changing section visibility exits Performance mode. |
 | **Watch next**           | With Nuvio installed, allow Android TV programme access. Only titles actually published by Nuvio appear; opening one follows Nuvio’s link.            |
 
-Without Nuvio, NiakTV can offer a supported installed streaming app as a shortcut. Without a supported app, no replacement card appears. It does not manufacture watch history for other streaming services.
+Choose **My selection app** to use Automatic or another installed, launchable app, even when Nuvio is present. Without a supported app, no replacement card appears. It does not manufacture watch history for other streaming services.
 
 TMDB uses a personal API key or read access token stored privately on the TV and excluded from backups. The credential is never embedded in the APK or passed to the JavaScript interface. Solid and gradient backgrounds do not download cinema images.
 

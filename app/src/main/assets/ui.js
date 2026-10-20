@@ -11,9 +11,27 @@
   const t = (value) =>
     model.language === "en" ? window.NiakTranslations[value] || value : value;
   const nuvioInstalled = () => model.apps.some((a) => a.id === "com.nuvio.tv");
+  const nuvioSelected = () => model.defaultStreamingApp === "com.nuvio.tv";
   let sceneVersion = 0;
+  const markup = new Map();
+  function setMarkup(id, html) {
+    if (markup.get(id) === html) return;
+    $(id).innerHTML = html;
+    markup.set(id, html);
+  }
+  function selectionMarkup() {
+    return model.showSelection === false
+      ? ""
+      : model.resumes.length
+        ? feature(model.resumes[0]) +
+          (model.resumes.length > 1
+            ? `<div class="resume-queue">${model.resumes.slice(1).map(queue).join("")}</div>`
+            : "")
+        : emptyFeature();
+  }
   let menu = null,
     menuApp = null,
+    menuScope = "apps",
     previousKey = "feature",
     toastTimer;
   const $ = (id) => document.getElementById(id);
@@ -41,7 +59,27 @@
     '<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 8h20v6l-5 6H9l-5-6zM9 12h10m-8 4h6"/></svg>';
   const source =
     '<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M11 5h13v18H11M3 14h14m-5-5l5 5-5 5"/></svg>';
+  const symbol = (path) => `<svg class="ui-symbol" viewBox="0 0 32 32" aria-hidden="true">${path}</svg>`;
+  const globe = symbol('<circle cx="16" cy="16" r="12"/><path d="M4 16h24M16 4c-7 6-7 18 0 24 7-6 7-18 0-24z"/>');
+  const television = symbol('<rect x="4" y="6" width="24" height="17" rx="3"/><path d="M11 28h10M16 23v5"/>');
   const marks = {
+    "com.goodtoolapps.zeus": globe,
+    "com.vewd.core.browserui": globe,
+    "org.droidtv.playtv": television,
+    "org.droidtv.nettvrecommender": symbol('<path d="m16 4 3.5 7.1 7.8 1.1-5.7 5.5 1.4 7.8-7-3.7-7 3.7 1.4-7.8-5.7-5.5 7.8-1.1z"/>'),
+    "org.droidtv.eum": symbol('<circle cx="16" cy="16" r="12"/><path d="M12 12a4 4 0 0 1 8 0c0 3-4 3-4 6M16 23h.01"/>'),
+    "com.phorus.playfi.tv": symbol('<path d="M4 11h5l6-5v20l-6-5H4zM20 11c4 3 4 7 0 10M24 7c7 5 7 13 0 18"/>'),
+    "com.google.android.play.games": symbol('<path d="M10 9h12c4 0 6 5 6 11 0 6-4 5-8 0h-8c-4 5-8 6-8 0 0-6 2-11 6-11zM8 14h8M12 10v8M23 13h.01M20 17h.01"/>'),
+    "org.droidtv.demome": symbol('<rect x="4" y="6" width="24" height="20" rx="3"/><path d="m13 11 8 5-8 5z"/>'),
+    "org.droidtv.channels": symbol('<rect x="4" y="5" width="24" height="22" rx="3"/><path d="M4 12h24M12 12v15M17 17h6M17 22h6M8 17h.01M8 22h.01"/>'),
+    "org.droidtv.nettv.market": symbol('<rect x="4" y="4" width="9" height="9" rx="2"/><rect x="19" y="4" width="9" height="9" rx="2"/><rect x="4" y="19" width="9" height="9" rx="2"/><path d="M19 23h9M23.5 19v9"/>'),
+    "org.droidtv.contentexplorer": symbol('<rect x="4" y="6" width="24" height="20" rx="3"/><circle cx="11" cy="12" r="2"/><path d="m5 24 9-8 5 4 4-3 5 5"/>'),
+    "org.droidtv.amazonalexa": symbol('<path d="M27 16a11 11 0 1 0-11 11c4 0 7-2 9-4V12"/><path d="M25 23v5l-6-2"/>'),
+    "com.apple.atve.androidtv.appletv": '<span class="wordmark">tv</span>',
+    "com.disney.disneyplus": '<span class="wordmark">Disney+</span>',
+    "com.wbd.stream": '<span class="wordmark">max</span>',
+    "com.hbo.hbonow": '<span class="wordmark">HBO</span>',
+    "com.canal.android.canal": '<span class="wordmark">CANAL+</span>',
     "com.nuvio.tv": nuvio,
     "com.google.android.youtube.tv":
       '<svg viewBox="0 0 32 32"><path d="M27 7c-4-1-18-1-22 0-3 1-3 17 0 18 4 1 18 1 22 0 3-1 3-17 0-18zm-14 5l9 4-9 4v-8z"/></svg>',
@@ -78,18 +116,28 @@
     "com.nuvio.tv": "Nuvio",
   };
   function mark(app) {
-    return marks[app.id] || `<img src="${esc(app.icon)}" alt="">`;
+    return marks[app.id] || `<svg class="app-monogram" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="8"/><text x="16" y="16" text-anchor="middle" dominant-baseline="central">${esc(Array.from(appName(app))[0] || "A")}</text></svg>`;
   }
+  const localizedNames = {
+    "com.alphainventor.filemanager": "Fichiers",
+    "com.goodtoolapps.zeus": "Navigateur",
+    "com.vewd.core.browserui": "Navigateur",
+    "org.droidtv.nettvrecommender": "Découvrir",
+    "org.droidtv.eum": "Aide",
+    "org.droidtv.playtv": "TV en direct",
+    "org.droidtv.demome": "Démo",
+    "org.droidtv.channels": "Guide TV",
+    "org.droidtv.nettv.market": "Collection TV",
+    "org.droidtv.contentexplorer": "Multimédia",
+  };
   function appName(app) {
-    return app.id === "com.alphainventor.filemanager"
-      ? t("Fichiers")
-      : names[app.id] || app.name;
+    return localizedNames[app.id] ? t(localizedNames[app.id]) : names[app.id] || app.name;
   }
   function buttonAttrs(action, id, key) {
     return `data-action="${action}" data-id="${esc(id)}" data-key="${esc(key)}" tabindex="-1"`;
   }
   function localImage(url) {
-    return /^https:\/\/niaktv\.local\/art\/[a-f0-9]{64}\.jpg$/.test(url || "")
+    return /^https:\/\/niaktv\.local\/art\/[a-f0-9]{64}\.webp$/.test(url || "")
       ? url
       : "";
   }
@@ -120,6 +168,17 @@
     const image = localImage(item.image);
     return `<button class="resume-card" ${buttonAttrs("resume", item.id, "resume:" + item.id)} aria-label="${item.position > 0 ? t("Reprendre") : t("Continuer")} ${esc(item.title)}">${image ? `<img src="${image}" alt="">` : ""}<span class="queue-shade"></span><div class="queue-content"><span class="eyebrow">Nuvio</span><h3 class="queue-title">${esc(item.title)}</h3><p class="queue-meta">${esc((item.episode || "").replace(/^\s*·\s*/, "")) || remaining(item)}</p>${percent(item) > 0 ? `<div class="queue-progress"><i style="width:${percent(item)}%"></i></div>` : ""}</div></button>`;
   }
+  function releaseDateLabel() {
+    const value = model.wallpaperReleaseDate || "";
+    if (/^\d{4}$/.test(value)) return value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+    const date = new Date(value + "T12:00:00");
+    return Number.isFinite(date.getTime())
+      ? date.toLocaleDateString(model.language === "en" ? "en-GB" : "fr-FR", {
+          day: "numeric", month: "long", year: "numeric",
+        })
+      : "";
+  }
   function render() {
     document.documentElement.lang = model.language || "fr";
     document
@@ -146,26 +205,26 @@
       model.backgroundVersion !== sceneVersion
     ) {
       sceneVersion = model.backgroundVersion;
-      document.getElementById("wallpaper").style.backgroundImage =
-        `url("https://niaktv.local/background.jpg?v=${sceneVersion}")`;
+      const version = sceneVersion;
+      const image = new Image();
+      image.onload = () => {
+        if (sceneVersion === version)
+          $("wallpaper").style.backgroundImage = `url("${image.src}")`;
+      };
+      image.onerror = () => {
+        if (sceneVersion === version) sceneVersion = 0;
+      };
+      image.src = `https://niaktv.local/background.webp?v=${version}`;
     }
     const active = document.activeElement?.dataset.key || previousKey;
-    $("continue").innerHTML =
-      model.showSelection === false
-        ? ""
-        : model.resumes.length
-          ? feature(model.resumes[0]) +
-            (model.resumes.length > 1
-              ? `<div class="resume-queue">${model.resumes.slice(1).map(queue).join("")}</div>`
-              : "")
-          : emptyFeature();
+    setMarkup("continue", selectionMarkup());
     $("selection-info").textContent = model.resumes.length
       ? `${model.resumes.length} ${t("reprises")} · Nuvio  →`
       : t("Votre espace personnel");
     document
       .querySelector(".selection")
       .classList.toggle("no-feature", !$("continue").children.length);
-    $("favorites").innerHTML =
+    setMarkup("favorites",
       model.favorites
         .map((id) => model.apps.find((a) => a.id === id))
         .filter(Boolean)
@@ -174,34 +233,35 @@
             `<button class="favorite" ${buttonAttrs("app", app.id, "fav:" + app.id)}>${mark(app)}${esc(appName(app))}</button>`,
         )
         .join("") +
-      `<button class="favorite add" ${buttonAttrs("favorites", "", "edit-favorites")}><span>+</span> ${t("Ma sélection")}</button>`;
-    $("inputs").innerHTML =
+      `<button class="favorite add" ${buttonAttrs("favorites", "", "edit-favorites")}><span>+</span> ${t("Ma sélection")}</button>`);
+    setMarkup("inputs",
       model.inputs
         .map(
           (input) =>
             `<button class="input ${input.connected ? "connected" : ""}" ${buttonAttrs("input", input.id, "input:" + input.id)}>${hdmi}<span>${esc(input.name.replace(" / MHL", ""))}</span><i class="status"></i></button>`,
         )
         .join("") +
-      `<button class="input" ${buttonAttrs("tv", "", "tv")}>${source}<span>${t("TV en direct")}</span></button>`;
+      `<button class="input" ${buttonAttrs("tv", "", "tv")}>${source}<span>${t("TV en direct")}</span></button>`);
     const ordered = [
       ...model.order
         .map((id) => model.apps.find((a) => a.id === id))
         .filter(Boolean),
       ...model.apps.filter((app) => !model.order.includes(app.id)),
     ];
-    $("apps").innerHTML = ordered
+    setMarkup("apps", ordered
       .map(
         (app) =>
           `<button class="app" ${buttonAttrs("app", app.id, "app:" + app.id)} aria-label="${esc(app.name)}"><span class="appmark">${mark(app)}</span><span class="app-name">${esc(appName(app))}</span></button>`,
       )
-      .join("");
+      .join(""));
+    const releaseDate = releaseDateLabel();
     $("wallpaper-credit").textContent =
       background !== "cinema"
         ? background === "solid"
           ? t("Fond uni")
           : t("Fond dégradé")
         : model.wallpaperTitle
-          ? `${t("Fond")} · ${model.wallpaperTitle} · TMDB`
+          ? `${t("Fond")} · ${model.wallpaperTitle}${releaseDate ? ` (${releaseDate})` : ""} · TMDB`
           : model.tmdbConfigured
             ? t("Films à l’affiche · TMDB")
             : t("Fond original · TMDB à configurer");
@@ -349,13 +409,29 @@
           t("Ajouter ou retirer vos raccourcis"),
           "favorites",
         ) +
-        (nuvioInstalled() && model.showSelection !== false
+        menuItem(
+          t("Application de Ma sélection"),
+          model.apps.find(a => a.id === model.defaultStreamingApp)
+            ? appName(model.apps.find(a => a.id === model.defaultStreamingApp))
+            : t("Automatique"),
+          "selection-app-menu",
+        ) +
+        (nuvioSelected() && model.showSelection !== false
           ? menuItem(
               t("Reprises Nuvio"),
               model.resumePermission
                 ? t("Actualiser les vidéos en cours")
                 : t("Autoriser les programmes Android TV"),
               "permission",
+            )
+          : "") +
+        (nuvioSelected() && model.showSelection !== false
+          ? menuItem(
+              t("Nombre de reprises"),
+              (model.resumeLimit || 3) === 32
+                ? t("Toutes · appuyer pour changer")
+                : `${model.resumeLimit || 3} · ${t("appuyer pour changer")}`,
+              "resume-limit",
             )
           : "") +
         menuItem(
@@ -421,16 +497,26 @@
         `<div class="menu-group">${t("VOTRE TÉLÉVISEUR")}</div>` +
         menuItem(
           t("Bouton Accueil"),
-          t("Configurer la redirection vers NiakTV"),
+          model.nativeHome ? t("NiakTV · accueil Android par défaut") : !model.homeRedirectEnabled
+            ? t("Redirection désactivée · configurer")
+            : model.homeRedirectConnected
+              ? t("Relais connecté · configurer")
+              : t("Relais non connecté · ouvrir l’accessibilité"),
           "home",
         ) +
         menuItem(
           t("Accueil d’origine"),
-          t("Retour réversible vers l’accueil Google"),
+          model.stockHomeEnabled === false ? t("Réactiver Google dans les réglages Android") : t("Retour réversible vers l’accueil Google"),
           "stock",
         ) +
         menuItem(t("Paramètres de la TV"), "", "settings") +
         menuItem(t("À propos et crédits"), "", "about");
+    } else if (menu === "selection-app") {
+      title = t("Application de Ma sélection");
+      const preference = model.selectionAppPreference || "";
+      html = `<p class="menu-note">${esc(t("Choisissez une application installée. Les reprises sont disponibles avec Nuvio ; les autres apps s’ouvrent via un raccourci."))}</p>` +
+        menuItem(t("Automatique"), !preference ? "✓" : "", "selection-app", "", "selection-app:auto") +
+        model.apps.map(app => menuItem(appName(app), preference === app.id ? "✓" : "", "selection-app", app.id, "selection-app:" + app.id)).join("");
     } else if (menu === "language") {
       title = t("Langue / Language");
       html =
@@ -493,14 +579,14 @@
           "favorite:" + menuApp.id,
         ) +
         menuItem(
-          t("Changer la position dans Apps TV"),
+          menuScope === "favorites" ? t("Changer la position dans Ma sélection") : t("Changer la position dans Apps TV"),
           "",
-          "move-menu",
+          menuScope === "favorites" ? "move-favorite-menu" : "move-menu",
           menuApp.id,
         );
-    } else if (menu === "move" && menuApp) {
+    } else if ((menu === "move" || menu === "move-favorite") && menuApp) {
       title = t("Placer") + " " + appName(menuApp);
-      const ordered = [
+      const ordered = menu === "move-favorite" ? model.favorites.map(id => model.apps.find(a => a.id === id)).filter(Boolean) : [
         ...model.order
           .map((id) => model.apps.find((a) => a.id === id))
           .filter(Boolean),
@@ -511,7 +597,7 @@
           menuItem(
             `${index + 1} · ${appName(app)}`,
             "",
-            "move",
+            menu === "move-favorite" ? "move-favorite" : "move",
             JSON.stringify({ id: menuApp.id, position: index }),
             "move:" + index,
           ),
@@ -560,7 +646,7 @@
       closeMenu();
       return;
     }
-    if (["language-menu", "background-menu", "palette-menu"].includes(action)) {
+    if (["language-menu", "background-menu", "palette-menu", "selection-app-menu"].includes(action)) {
       showMenu(action.replace("-menu", ""));
       return;
     }
@@ -572,22 +658,28 @@
       showMenu("about");
       return;
     }
+    if (action === "selection-app") {
+      device(action, id);
+      showMenu("settings");
+      return;
+    }
     if (action === "favorite-toggle") {
       const values = model.favorites.includes(id)
         ? model.favorites.filter((v) => v !== id)
         : [...model.favorites, id];
       device("favorites", JSON.stringify(values));
+      if (menu === "app") closeMenu();
       return;
     }
-    if (action === "move-menu") {
+    if (action === "move-menu" || action === "move-favorite-menu") {
       showMenu(
-        "move",
+        action === "move-favorite-menu" ? "move-favorite" : "move",
         model.apps.find((a) => a.id === id),
       );
       return;
     }
-    if (action === "move") {
-      device("move", id);
+    if (action === "move" || action === "move-favorite") {
+      device(action, id);
       toast(t("Ordre enregistré"));
       return;
     }
@@ -621,6 +713,8 @@
       if (menu) closeMenu();
       else focusKey("feature");
     } else if (key === "long") {
+      if (menu) return;
+      menuScope = document.activeElement?.closest("#favorites") ? "favorites" : "apps";
       const id = document.activeElement?.dataset.id,
         app = model.apps.find((a) => a.id === id);
       if (app) showMenu("app", app);
@@ -693,6 +787,8 @@
       }
       image.src = url;
     });
+    // The DOM now matches the model; keep the same decoded images on the next refresh.
+    markup.set("continue", selectionMarkup());
   }
   function clock() {
     const now = new Date();

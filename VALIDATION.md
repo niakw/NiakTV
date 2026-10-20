@@ -11,7 +11,7 @@
 | Check                | Coverage                                                                                                            | Does not establish                                   |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
 | Android CI           | Build, Android Lint, unit tests and frontend syntax                                                                 | Correct behaviour on every TV or firmware            |
-| Unit tests           | App ordering/movement, changing app inventories, daily rotation and installed-only streaming fallbacks              | Network availability or manufacturer integration     |
+| Unit tests           | App ordering, artwork sizing/cache bounds, resume limits, Home relay gating, daily rotation and installed-only fallbacks              | Network availability or manufacturer integration     |
 | On-device UI checks  | Section order, viewport fit, fonts, visible focus, row navigation, drawers, EN/FR and missing-app fixture cases     | TalkBack support or an accessibility audit           |
 | Manual device checks | Nuvio deep links, HDMI launch, original-home recovery, renderer recovery and persisted appearance/language settings | Multi-brand compatibility or long-duration stability |
 
@@ -41,7 +41,7 @@ Electrical reboot, multi-day midnight rotation, extended playback and broad manu
 ### Implementation limits that affect the experience
 
 - Programme support is currently specific to Nuvio’s Android TV publications. A fallback streaming shortcut does not provide that app’s watch history.
-- At most 32 recent programmes are exposed. Programme artwork has a bounded cache; the first three images are prefetched and other images wait for stable focus.
+- By default, three recent programmes are exposed and prefetched; Settings offers 3, 5, 8 or All (up to 32). Source artwork and cropped WebP renditions share a 64-file / 24 MB cache. Moving a title between hero and card positions reuses or generates the matching rendition.
 - Hiding My selection stops programme reads, its observer and further artwork requests. Performance mode also forces a solid background and prevents cinema refreshes. An already-running bounded request can finish after a mode change or leaving the home screen.
 - The cinema catalogue uses TMDB’s France now-playing feed. Metadata, regional availability and usable artwork depend on TMDB. Daily refresh happens when the home screen is active, not through a permanent background downloader.
 - Home compatibility targets Google Android TV home. The current live-TV shortcut targets a manufacturer-specific activity; other firmware may require the TV’s own input selector. Some firmwares clear NiakTV’s accessibility activation after a force-stop.
@@ -56,7 +56,7 @@ Electrical reboot, multi-day midnight rotation, extended playback and broad manu
 | Contrôle                  | Couverture                                                                                                             | Ne permet pas d’affirmer                                          |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | CI Android                | Compilation, Android Lint, tests unitaires et syntaxe de l’interface                                                   | Un fonctionnement correct sur toutes les TV et tous les firmwares |
-| Tests unitaires           | Ordre/déplacement des apps, inventaires qui évoluent, rotation quotidienne et app de remplacement réellement installée | La disponibilité réseau ou l’intégration fabricant                |
+| Tests unitaires           | Ordre des apps, formats/cache d’images, nombre de reprises, relais Accueil, rotation et app de remplacement installée | La disponibilité réseau ou l’intégration fabricant                |
 | Contrôles UI sur appareil | Ordre des blocs, cadrage, polices, focus, navigation, panneaux, EN/FR et cas d’app absente simulés                     | La prise en charge de TalkBack ou un audit d’accessibilité        |
 | Essais manuels            | Liens Nuvio, HDMI, retour à l’accueil d’origine, récupération du renderer et conservation des réglages                 | Une compatibilité multimarque ou une stabilité de longue durée    |
 
@@ -86,7 +86,7 @@ Le redémarrage électrique, la rotation à minuit sur plusieurs jours, la lectu
 ### Limites de l’implémentation visibles à l’usage
 
 - La lecture des programmes est actuellement propre aux publications Android TV de Nuvio. Le raccourci vers une autre app ne donne pas accès à son historique de lecture.
-- Au maximum 32 programmes récents sont exposés. Le cache d’illustrations est borné ; trois images sont préchargées et les suivantes attendent un focus stable.
+- Trois programmes récents sont affichés et préchargés par défaut ; les réglages proposent 3, 5, 8 ou Toutes (32 maximum). Les sources et variantes WebP recadrées partagent un cache de 64 fichiers / 24 Mo. Un changement de position réutilise ou génère le format correspondant.
 - Masquer Ma sélection coupe la lecture des programmes, leur observateur et les nouvelles demandes d’illustrations. Le mode performance impose aussi un fond uni et empêche les actualisations cinéma. Une requête bornée déjà en cours peut se terminer après un changement de mode ou la sortie de l’accueil.
 - Le catalogue cinéma utilise le flux TMDB des films à l’affiche en France. Métadonnées, disponibilité régionale et illustrations exploitables dépendent de TMDB. L’actualisation quotidienne se fait quand l’accueil est actif, sans téléchargeur permanent en arrière-plan.
 - La compatibilité Accueil cible Google Android TV. Le raccourci TV en direct actuel cible une activité fabricant ; un autre firmware peut demander d’utiliser son propre sélecteur d’entrées. Certains firmwares retirent l’activation du service NiakTV après un arrêt forcé.

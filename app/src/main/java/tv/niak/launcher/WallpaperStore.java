@@ -19,7 +19,7 @@ final class WallpaperStore {
   WallpaperStore(Context context) {
     this.context = context.getApplicationContext();
     prefs = context.getSharedPreferences("niaktv", Context.MODE_PRIVATE);
-    cache = new AtomicFile(new File(context.getFilesDir(), "daily-cinema.jpg"));
+    cache = new AtomicFile(new File(context.getFilesDir(), "daily-cinema.webp"));
   }
 
   boolean configured() {
@@ -31,7 +31,25 @@ final class WallpaperStore {
     try (InputStream stream = cache.openRead()) {
       return decorate(decode(stream));
     } catch (IOException | RuntimeException e) {
-      return null;
+      // Migrate the previous cache on-device, without another TMDB download.
+      File legacy = new File(context.getFilesDir(), "daily-cinema.jpg");
+      try (InputStream stream = new FileInputStream(legacy)) {
+        Bitmap image = decode(stream);
+        if (image == null) return null;
+        FileOutputStream output = null;
+        try {
+          output = cache.startWrite();
+          if (!image.compress(ImageCodec.format(), ImageCodec.QUALITY, output))
+            throw new IOException("Cannot encode wallpaper");
+          cache.finishWrite(output);
+          legacy.delete();
+        } catch (IOException failure) {
+          cache.failWrite(output);
+        }
+        return decorate(image);
+      } catch (IOException | RuntimeException missing) {
+        return null;
+      }
     }
   }
 
@@ -47,6 +65,12 @@ final class WallpaperStore {
   String title() {
     return "tmdb".equals(prefs.getString("wall_source", ""))
         ? prefs.getString("wall_title", "")
+        : "";
+  }
+
+  String releaseDate() {
+    return "tmdb".equals(prefs.getString("wall_source", ""))
+        ? prefs.getString("wall_year", "")
         : "";
   }
 
@@ -126,7 +150,8 @@ final class WallpaperStore {
     FileOutputStream out = null;
     try {
       out = cache.startWrite();
-      out.write(data);
+      if (!image.compress(ImageCodec.format(), ImageCodec.QUALITY, out))
+        throw new IOException("Cannot encode wallpaper");
       cache.finishWrite(out);
     } catch (IOException e) {
       cache.failWrite(out);
