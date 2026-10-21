@@ -1,7 +1,28 @@
+# Local build and IDE state
 .gradle/
 **/build/
 local.properties
-*.jks
-*.keystore
+.idea/
+.vscode/
 .DS_Store
 *.hprof
+*.log
+
+# Local signing keys and credentials (never commit)
+.signing/
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.p8
+.env
+.env.*
+!.env.example
+.credentials/
+.private/
+
+# Installers and generated artifacts belong in GitHub Releases, not Git
+*.apk
+*.aab
