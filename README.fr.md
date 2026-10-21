@@ -37,10 +37,12 @@ Aucune ligne sponsorisée, bande-annonce automatique ou analyse d’usage. L’i
 
 ## ⚡ Prendre ses marques
 
-NiakTV est actuellement distribué sous forme d’**APK de développement** dans [GitHub Actions](https://github.com/niakw/NiakTV/actions/workflows/android.yml).
+**[Télécharger l’APK NiakTV](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** · [Notes de version](https://github.com/niakw/NiakTV/releases/latest)
 
-1. Ouvrez une compilation réussie, téléchargez **niaktv-debug** et extrayez `app-debug.apk`.
-2. Activez le débogage ADB sur la TV, connectez-vous depuis l’ordinateur et installez l’APK.
+L’APK signé est prêt à installer : aucune compilation, aucun compte GitHub Actions et aucun ZIP à extraire. La version 0.3.1 reste une version de développement, pas une version de production.
+
+1. Téléchargez `niaktv-0.3.1.apk` avec le lien ci-dessus.
+2. Transférez-le sur la TV et ouvrez-le avec un gestionnaire de fichiers, en autorisant l’installation depuis cette source si Android le demande. Autre possibilité : `adb install -r niaktv-0.3.1.apk`.
 3. Ouvrez NiakTV, puis **Réglages → Bouton Accueil** pour configurer le comportement permis par votre TV.
 
 **[Guide d’installation →](INSTALL.fr.md)** Commandes, premier démarrage, mises à jour, dépannage et retour à l’accueil d’origine.

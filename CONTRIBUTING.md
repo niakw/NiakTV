@@ -26,6 +26,10 @@ On Windows, use `gradlew.bat` instead of `./gradlew`.
 
 The debug APK is `app/build/outputs/apk/debug/app-debug.apk`. Follow the [installation guide](INSTALL.md) to try it on a TV. Local debug builds use `.signing/niaktv-debug.keystore` if present; keep it private and retain the signing key for future updates.
 
+### Publish an installer
+
+End users install the signed APK attached to [Releases](https://github.com/niakw/NiakTV/releases), not a CI artifact. Build and test the exact version, retain its signing key privately for future updates, then attach the versioned APK and `SHA256SUMS.txt` to a release targeting the verified source commit. Include EN/FR notes and update both README download links and installation guides. Never publish signing keys, local preferences or personal credentials. CI debug artifacts are for development and may use temporary signing keys.
+
 ### Rebuild the font assets
 
 The APK bundles WOFF2 fonts. Original TTF files are kept in `tools/font-sources/`; their OFL notices remain in `app/src/main/assets/fonts/`. With `fonttools[woff]==4.60.1` installed in a local Python environment, run `python tools/compress_fonts.py`. The conversion keeps all glyphs, metrics and variable weight axes and checks them against the source. It does not subset characters.
@@ -80,6 +84,10 @@ node --check app/src/main/assets/ui.js
 Sous Windows, utilisez `gradlew.bat` à la place de `./gradlew`.
 
 L’APK debug se trouve dans `app/build/outputs/apk/debug/app-debug.apk`. Suivez le [guide d’installation](INSTALL.fr.md) pour l’essayer sur une TV. Si `.signing/niaktv-debug.keystore` existe, les builds debug locaux l’utilisent ; gardez cette clé privée et conservez-la pour les mises à jour.
+
+### Publier un installateur
+
+Les utilisateurs installent l’APK signé joint aux [Releases](https://github.com/niakw/NiakTV/releases), pas un artefact CI. Compilez et vérifiez la version exacte, conservez sa clé de signature privée pour les mises à jour, puis joignez l’APK versionné et `SHA256SUMS.txt` à une release ciblant le commit source vérifié. Ajoutez des notes EN/FR et actualisez les liens des deux README et les guides d’installation. Ne publiez jamais de clé de signature, préférences locales ou identifiants personnels. Les artefacts debug CI servent au développement et peuvent utiliser des clés temporaires.
 
 ### Régénérer les polices
 

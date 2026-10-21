@@ -4,22 +4,26 @@
 
 ## Avant de commencer
 
-Il vous faut un appareil Android TV sous Android 8 ou plus récent, un ordinateur avec [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools), et une TV qui autorise l’installation d’APK et le débogage ADB. Les réglages et le bouton Accueil dépendent du fabricant. Les versions actuelles sont des APK de développement.
+Il vous faut un appareil Android TV sous Android 8 ou plus récent qui autorise l’installation d’APK. Un ordinateur avec [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools) est nécessaire uniquement pour la méthode ADB facultative. Les réglages et le bouton Accueil dépendent du fabricant. Les versions actuelles sont des APK de développement.
 
 Nuvio et une clé TMDB sont facultatifs. Commencez sans ces services si vous voulez simplement vos apps et vos entrées.
 
 ## 1. Récupérer l’APK
 
-Ouvrez le [workflow Android](https://github.com/niakw/NiakTV/actions/workflows/android.yml), choisissez une compilation **réussie** et téléchargez l’artefact **niaktv-debug**. Extrayez `app-debug.apk` du ZIP. Une compilation en échec ou encore en cours peut ne pas proposer d’APK.
+Téléchargez directement **[niaktv-0.3.1.apk](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** depuis la [dernière release](https://github.com/niakw/NiakTV/releases/latest). L’installateur signé est prêt à utiliser : aucun outil de compilation, compte GitHub ou ZIP à extraire. La release contient aussi `SHA256SUMS.txt` pour vérifier le fichier téléchargé.
 
-## 2. Connecter et installer
+## 2. Installer sur la TV
+
+Transférez l’APK sur la TV avec une clé USB ou votre app de transfert habituelle. Ouvrez-le avec un gestionnaire de fichiers Android TV, autorisez **Installer des applications inconnues** pour cette source si Android le demande, puis confirmez l’installation. Ouvrez NiakTV depuis vos apps. La prise en charge USB et du gestionnaire de fichiers dépend de l’appareil.
+
+### Autre méthode : depuis un ordinateur avec ADB
 
 Activez les options développeur et le débogage ADB sur la TV. Si le firmware propose ADB par réseau sur le port 5555, reliez la TV et l’ordinateur au même réseau de confiance. Remplacez `TV_IP` par l’adresse de votre TV ; acceptez la demande d’autorisation sur le téléviseur.
 
 ```sh
 adb connect TV_IP:5555
 adb devices
-adb -s TV_IP:5555 install -r app-debug.apk
+adb -s TV_IP:5555 install -r niaktv-0.3.1.apk
 adb -s TV_IP:5555 shell am start -n tv.niak.launcher/.MainActivity
 ```
 
@@ -70,7 +74,7 @@ Les affiches des reprises sont conservées dans un cache privé limité à 64 fi
 
 ## Mises à jour
 
-Utilisez `adb install -r` avec un APK signé par **la même clé** que la version installée. Les builds debug CI et locaux peuvent employer des clés différentes ; une signature stable n’est pas garantie entre deux builds CI. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indique une incompatibilité de signature : récupérez un APK construit avec la clé d’origine. Désinstaller n’est pas une mise à jour transparente : cela supprime les préférences et la clé TMDB enregistrée.
+Utilisez `adb install -r` avec un APK signé par **la même clé** que la version installée. L’APK 0.3.1 publié utilise la clé de signature locale conservée par le projet. Installez les APK des releases ; les artefacts GitHub Actions servent aux contrôles de développement et peuvent utiliser une autre clé temporaire. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indique une incompatibilité de signature : récupérez un APK construit avec la clé d’origine. Désinstaller n’est pas une mise à jour transparente : cela supprime les préférences et la clé TMDB enregistrée.
 
 ## Revenir à l’accueil d’origine
 

@@ -4,22 +4,26 @@
 
 ## Before you start
 
-You need an Android TV device running Android 8 or later, a computer with [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools), and a TV that allows APK installation and ADB debugging. Manufacturer settings and Home behaviour vary. The current builds are development APKs.
+You need an Android TV device running Android 8 or later that allows APK installation. A computer with [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools) is needed only for the optional ADB method. Manufacturer settings and Home behaviour vary. The current builds are development APKs.
 
 Nuvio and a TMDB key are optional. Start without either if you just want apps and inputs.
 
 ## 1. Get the APK
 
-Open the [Android workflow](https://github.com/niakw/NiakTV/actions/workflows/android.yml), choose a **successful** build and download the **niaktv-debug** artifact. Extract `app-debug.apk` from the ZIP. A failed or still-running build may not have an APK.
+Download **[niaktv-0.3.1.apk](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** directly from the [latest release](https://github.com/niakw/NiakTV/releases/latest). The signed installer is ready to use; no build tools, GitHub account or archive extraction are required. The release also includes `SHA256SUMS.txt` to check the downloaded file.
 
-## 2. Connect and install
+## 2. Install on the TV
+
+Transfer the APK to your TV using a USB drive or your preferred file-transfer app. Open it with an Android TV file manager, allow **Install unknown apps** for that source when prompted, and confirm installation. Open NiakTV from your apps. USB and file-manager support depend on your device.
+
+### Alternative: install from a computer with ADB
 
 Enable Developer options and ADB debugging on your TV. If the firmware exposes network ADB on port 5555, connect the TV and computer to the same trusted network. Replace `TV_IP` with your own TV address; accept the authorisation prompt on the TV.
 
 ```sh
 adb connect TV_IP:5555
 adb devices
-adb -s TV_IP:5555 install -r app-debug.apk
+adb -s TV_IP:5555 install -r niaktv-0.3.1.apk
 adb -s TV_IP:5555 shell am start -n tv.niak.launcher/.MainActivity
 ```
 
@@ -70,7 +74,7 @@ Resume artwork uses a private disk cache limited to 64 files and 24 MB. By defau
 
 ## Updates
 
-Use `adb install -r` with an APK signed by the **same key** as the installed version. CI debug builds and local builds may use different keys, and successive CI builds are not guaranteed a stable signing identity. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indicates a signature mismatch; recover an APK built with the original key. Uninstalling is not a transparent update: it removes the app’s preferences and saved TMDB credential.
+Use `adb install -r` with an APK signed by the **same key** as the installed version. The published 0.3.1 APK uses the project’s retained local signing key. Use published release APKs for installation; GitHub Actions artifacts are developer checks and may use a different, temporary signing key. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indicates a signature mismatch; recover an APK built with the original key. Uninstalling is not a transparent update: it removes the app’s preferences and saved TMDB credential.
 
 ## Return to the original home
 
