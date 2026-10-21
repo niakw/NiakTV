@@ -24,7 +24,10 @@ jobs:
           node --check app/src/main/assets/ui.js
       - name: Report resolved build and app dependencies
         run: ./gradlew --no-daemon buildEnvironment :app:dependencies --configuration debugRuntimeClasspath > dependency-report.txt
+      - name: Check resolved build dependency security floors
+        run: python3 scripts/check-gradle-dependencies.py dependency-report.txt
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: dependency-report
           path: dependency-report.txt
