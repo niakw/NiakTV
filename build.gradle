@@ -3,6 +3,28 @@ buildscript {
         'io.netty': '4.1.139.Final',
         'com.google.protobuf': '3.25.9'
     ]
+    // Patch every buildscript resolution (including plugin-created classpaths).
+    // Constraints below only affect the classpath which declares them.
+    rootProject.ext.secureBuildModules = [
+        'org.bouncycastle:bcprov-jdk18on': '1.86',
+        'org.bouncycastle:bcpkix-jdk18on': '1.86',
+        'org.bouncycastle:bcutil-jdk18on': '1.86',
+        'org.apache.httpcomponents:httpclient': '4.5.14',
+        'org.apache.commons:commons-lang3': '3.21.0',
+        'org.apache.commons:commons-compress': '1.28.0',
+        'org.jetbrains.kotlin:kotlin-gradle-plugin': '2.4.21'
+    ]
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            def module = "${details.requested.group}:${details.requested.name}"
+            def patched = rootProject.secureBuildModules[module] ?:
+                rootProject.secureBuildFamilies[details.requested.group]
+            if (patched != null) {
+                details.useVersion(patched)
+                details.because('Use patched Gradle build-tool transitives')
+            }
+        }
+    }
     dependencies {
         // These libraries belong to AGP/lint and Gradle plugins, not the installed
         // Android application. Keep transitive build tools on patched versions.
@@ -25,11 +47,24 @@ buildscript {
 plugins { id 'com.android.application' version '9.4.1' apply false }
 
 allprojects {
-    configurations.configureEach {
-        // AGP also creates separate device-test/tool configurations. They do not
-        // inherit the plugin classpath BOMs and must use the same patched family.
+    // Project buildscript classpaths and AGP-managed tool configurations are
+    // independent: both need the same security floors.
+    buildscript.configurations.configureEach {
         resolutionStrategy.eachDependency { details ->
-            def patched = rootProject.secureBuildFamilies[details.requested.group]
+            def module = "${details.requested.group}:${details.requested.name}"
+            def patched = rootProject.secureBuildModules[module] ?:
+                rootProject.secureBuildFamilies[details.requested.group]
+            if (patched != null) {
+                details.useVersion(patched)
+                details.because('Align plugin classpaths with patched build dependencies')
+            }
+        }
+    }
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            def module = "${details.requested.group}:${details.requested.name}"
+            def patched = rootProject.secureBuildModules[module] ?:
+                rootProject.secureBuildFamilies[details.requested.group]
             if (patched != null) {
                 details.useVersion(patched)
                 details.because('Align Android tool configurations with patched build dependencies')
