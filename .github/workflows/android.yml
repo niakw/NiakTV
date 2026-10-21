@@ -15,7 +15,7 @@ jobs:
         with:
           packages: platform-tools platforms;android-35 build-tools;35.0.0
           log-accepted-android-sdk-licenses: 'false'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       - name: Build, unit tests and lint
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
       - name: Check frontend JavaScript
