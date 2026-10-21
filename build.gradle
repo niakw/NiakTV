@@ -1,1 +1,18 @@
+buildscript {
+    dependencies {
+        // These libraries belong to AGP/lint, not the installed app. Align their
+        // patched versions without migrating the Android plugin's major API.
+        classpath platform('io.netty:netty-bom:4.1.139.Final')
+        classpath platform('com.google.protobuf:protobuf-bom:3.25.9')
+        constraints {
+            classpath('org.bouncycastle:bcprov-jdk18on:1.86')
+            classpath('org.bouncycastle:bcpkix-jdk18on:1.86')
+            classpath('org.bouncycastle:bcutil-jdk18on:1.86')
+            classpath('org.apache.commons:commons-compress:1.28.0')
+            classpath('org.jdom:jdom2:2.0.6.1')
+            classpath('org.bitbucket.b_c:jose4j:0.9.7')
+        }
+    }
+}
+
 plugins { id 'com.android.application' version '8.9.2' apply false }
