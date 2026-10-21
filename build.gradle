@@ -1,9 +1,13 @@
 buildscript {
+    rootProject.ext.secureBuildFamilies = [
+        'io.netty': '4.1.139.Final',
+        'com.google.protobuf': '3.25.9'
+    ]
     dependencies {
         // These libraries belong to AGP/lint, not the installed app. Align their
         // patched versions without migrating the Android plugin's major API.
-        classpath platform('io.netty:netty-bom:4.1.139.Final')
-        classpath platform('com.google.protobuf:protobuf-bom:3.25.9')
+        classpath platform("io.netty:netty-bom:${rootProject.secureBuildFamilies['io.netty']}")
+        classpath platform("com.google.protobuf:protobuf-bom:${rootProject.secureBuildFamilies['com.google.protobuf']}")
         constraints {
             classpath('org.bouncycastle:bcprov-jdk18on:1.86')
             classpath('org.bouncycastle:bcpkix-jdk18on:1.86')
@@ -16,3 +20,17 @@ buildscript {
 }
 
 plugins { id 'com.android.application' version '8.9.2' apply false }
+
+allprojects {
+    configurations.configureEach {
+        // AGP also creates separate device-test/tool configurations. They do not
+        // inherit the plugin classpath BOMs and must use the same patched family.
+        resolutionStrategy.eachDependency { details ->
+            def patched = rootProject.secureBuildFamilies[details.requested.group]
+            if (patched != null) {
+                details.useVersion(patched)
+                details.because('Align Android tool configurations with patched build dependencies')
+            }
+        }
+    }
+}
