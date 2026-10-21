@@ -18,6 +18,12 @@ Security fixes target the current code on `main`. Development APKs are not a mai
 
 The areas most relevant to NiakTV are the native WebView bridge, local resource routing, artwork downloads, launch-intent validation and private credential storage.
 
+### Build dependencies and the installed APK
+
+The 52 Dependabot alerts reviewed on 21 October 2026 concerned transitive dependencies of the Android build and device-test tooling (AGP/lint/UTP), recorded in the submitted Gradle graph. They were not 52 separate libraries shipped with the launcher. Inspection of the published 0.3.1 APK’s defined DEX classes found none from Netty, Bouncy Castle, Protobuf, JDOM, jose4j or Commons Compress. This scoped check is not a general security audit of the app or Android.
+
+`build.gradle` sets patched build-classpath versions: Netty 4.1.139.Final and Protobuf 3.25.9 through their BOMs, Bouncy Castle 1.86, Commons Compress 1.28.0, JDOM 2.0.6.1 and jose4j 0.9.7. Separate AGP device-test configurations are aligned to the same Netty/Protobuf versions. These rules do not add runtime libraries to the app. The Android workflow builds, runs unit tests and lint, and uploads a `dependency-report` showing the resolved build classpath and app runtime classpath. Dependabot checks Gradle and GitHub Actions weekly; its live alert list remains the reference for newly disclosed issues. Alerts must close through corrected dependency resolution, not blanket dismissal.
+
 ### What the app stores and contacts
 
 - Favourites, app order, appearance and Home preferences stay in private Android app storage.
@@ -43,6 +49,12 @@ Les plantages ordinaires, anomalies d’interface et questions d’installation 
 Les corrections de sécurité visent le code courant sur `main`. Les APK de développement ne constituent pas une branche de versions maintenue à long terme. Le firmware Android, WebView et les apps tierces ont leurs propres mises à jour et canaux de signalement.
 
 Les parties particulièrement concernées dans NiakTV sont le pont WebView natif, l’accès aux ressources locales, les téléchargements d’illustrations, la validation des intents et le stockage privé des identifiants.
+
+### Dépendances de compilation et APK installé
+
+Les 52 alertes Dependabot examinées le 21 octobre 2026 concernaient les dépendances transitives des outils de compilation et de tests Android (AGP/lint/UTP), enregistrées dans le graphe Gradle soumis. Elles ne correspondaient pas à 52 bibliothèques distinctes embarquées dans le lanceur. Le contrôle des classes DEX définies dans l’APK 0.3.1 publié n’a trouvé aucune classe Netty, Bouncy Castle, Protobuf, JDOM, jose4j ou Commons Compress. Ce contrôle ciblé ne constitue pas un audit général de l’app ou d’Android.
+
+`build.gradle` définit des versions corrigées sur le classpath de compilation : Netty 4.1.139.Final et Protobuf 3.25.9 via leurs BOM, Bouncy Castle 1.86, Commons Compress 1.28.0, JDOM 2.0.6.1 et jose4j 0.9.7. Les configurations séparées des tests sur appareils AGP utilisent les mêmes versions Netty/Protobuf. Ces règles n’ajoutent aucune bibliothèque d’exécution à l’app. Le workflow Android compile, exécute les tests unitaires et le lint, puis publie un `dependency-report` montrant les dépendances résolues des outils et de l’app. Dependabot contrôle Gradle et GitHub Actions chaque semaine ; sa liste d’alertes reste la référence pour les nouvelles vulnérabilités. Les alertes doivent se fermer grâce aux versions corrigées, sans classement en masse comme ignorées.
 
 ### Données conservées et connexions
 

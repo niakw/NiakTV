@@ -79,6 +79,8 @@ TMDB utilise votre clé API ou votre jeton de lecture personnel, conservé dans 
 
 Les questions vont dans [Discussions](https://github.com/niakw/NiakTV/discussions) ; les anomalies reproductibles et suggestions dans les [Issues](https://github.com/niakw/NiakTV/issues/new/choose). Le français et l’anglais sont les bienvenus.
 
+Les dépendances des outils de compilation sont maintenues séparément de l’app installée. Voir le [périmètre sécurité et dépendances](SECURITY.md#francais).
+
 ## Crédits et licence
 
 [GNU GPL v3](LICENSE). Les polices Manrope et Instrument Serif conservent leurs [notices SIL Open Font License](app/src/main/assets/fonts/). Le fond de secours original a été créé pour NiakTV. Les visuels de films restent la propriété de leurs ayants droit.

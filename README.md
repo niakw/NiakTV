@@ -79,6 +79,8 @@ TMDB uses a personal API key or read access token stored privately on the TV and
 
 Questions belong in [Discussions](https://github.com/niakw/NiakTV/discussions); reproducible bugs and feature requests belong in [Issues](https://github.com/niakw/NiakTV/issues/new/choose). English and French are welcome.
 
+Build dependencies are maintained separately from the installed app. See [security and dependency scope](SECURITY.md#english).
+
 ## Credits & licence
 
 [GNU GPL v3](LICENSE). Bundled Manrope and Instrument Serif fonts retain their [SIL Open Font License notices](app/src/main/assets/fonts/). The original fallback artwork was created for NiakTV. Film artwork belongs to its respective rights holders.
