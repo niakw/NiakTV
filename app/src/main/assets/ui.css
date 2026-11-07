@@ -649,11 +649,13 @@ footer {
 .menu-item:disabled small {
   color: #626d76;
 }
-.add-app .appmark {
+.app.add-app .appmark {
   color: var(--accent);
-  stroke: currentColor;
+}
+.app.add-app .appmark svg {
   fill: none;
-  stroke-width: 2;
+  stroke: currentColor;
+  stroke-width: 2.1;
   stroke-linecap: round;
 }
 .add-app .app-name {

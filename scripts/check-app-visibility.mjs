@@ -41,4 +41,7 @@ for (const id of ["io.gh.reisxd.tizentube.cobalt", "com.goodtoolapps.zeus",
   assert.ok(code.includes('"' + id + '"'), "Missing real package mapping: " + id);
 assert.ok(code.includes('button:not(:disabled)'), "Disabled actions must not receive remote focus");
 assert.ok(code.includes('contextmenu'), "Mouse right click must open the app menu");
+const css = readFileSync("app/src/main/assets/ui.css", "utf8");
+assert.ok(css.includes(".app.add-app .appmark svg") && css.includes("fill: none;"),
+  "Add button must preserve its outlined plus icon");
 console.log("NiakTV app visibility and menu contracts: passed");
