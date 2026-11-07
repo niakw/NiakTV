@@ -67,7 +67,7 @@ const expression = `(async()=>{
   });
   try {
     const netflix={id:'com.netflix.ninja',name:'Netflix',icon:''};
-    const fixture={...original,apps:[netflix],resumes:[],favorites:[netflix.id],order:[],defaultStreamingApp:netflix.id,nuvioInstalled:false,resumePermission:false,language:'en',showSelection:true,performance:false,background:'gradient',palette:'violet'};
+    const fixture={...original,apps:[netflix],resumes:[],favorites:[netflix.id],order:[],defaultStreamingApp:netflix.id,nuvioInstalled:false,resumePermission:false,language:'en',showSelection:true,performance:false,background:'gradient',palette:'violet',wallpaperReleaseDate:''};
     NiakUI.update({...fixture,background:'cinema',wallpaperTitle:'Original film'});
     assert(document.getElementById('wallpaper-credit').textContent==='Wallpaper · Original film · TMDB','Original title credit order');
     NiakUI.update(fixture);NiakUI.key('back');
