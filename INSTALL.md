@@ -10,7 +10,7 @@ Nuvio and a TMDB key are optional. Start without either if you just want apps an
 
 ## 1. Get the APK
 
-Download **[niaktv-0.3.1.apk](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** directly from the [latest release](https://github.com/niakw/NiakTV/releases/latest). The signed installer is ready to use; no build tools, GitHub account or archive extraction are required. The release also includes `SHA256SUMS.txt` to check the downloaded file.
+Download **[niaktv-0.3.4.apk](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.4.apk)** directly from the [latest release](https://github.com/niakw/NiakTV/releases/latest). The signed installer is ready to use; no build tools, GitHub account or archive extraction are required. The release also includes `SHA256SUMS.txt` to check the downloaded file.
 
 ## 2. Install on the TV
 
@@ -23,7 +23,7 @@ Enable Developer options and ADB debugging on your TV. If the firmware exposes n
 ```sh
 adb connect TV_IP:5555
 adb devices
-adb -s TV_IP:5555 install -r niaktv-0.3.1.apk
+adb -s TV_IP:5555 install -r niaktv-0.3.4.apk
 adb -s TV_IP:5555 shell am start -n tv.niak.launcher/.MainActivity
 ```
 
@@ -74,7 +74,7 @@ Resume artwork uses a private disk cache limited to 64 files and 24 MB. By defau
 
 ## Updates
 
-Use `adb install -r` with an APK signed by the **same key** as the installed version. The published 0.3.1 APK uses the project’s retained local signing key. Use published release APKs for installation; GitHub Actions artifacts are developer checks and may use a different, temporary signing key. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indicates a signature mismatch; recover an APK built with the original key. Uninstalling is not a transparent update: it removes the app’s preferences and saved TMDB credential.
+Use `adb install -r` with an APK signed by the **same key** as the installed version. The published 0.3.4 APK uses the same retained local signing key as the prior 0.3.1–0.3.3 builds. Use published release APKs for installation; GitHub Actions artifacts are developer checks and may use a different, temporary signing key. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indicates a signature mismatch; recover an APK built with the original key. Uninstalling is not a transparent update: it removes the app’s preferences and saved TMDB credential.
 
 ## Return to the original home
 

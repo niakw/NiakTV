@@ -40,6 +40,14 @@ for (const id of ["io.gh.reisxd.tizentube.cobalt", "com.goodtoolapps.zeus",
   assert.ok(code.includes('"' + id + '"'), "Missing real package mapping: " + id);
 assert.ok(code.includes('button:not(:disabled)'), "Disabled actions must not receive remote focus");
 assert.ok(code.includes('contextmenu'), "Mouse right click must open the app menu");
+assert.ok(code.includes('menuHistory.push(') && code.includes('function backMenu()'),
+  "Nested menus must retain a parent stack");
+assert.ok(code.includes('renderMenu(parent.focusedKey)'),
+  "Returning to the parent must restore its previous selection");
+assert.ok(!code.includes('#e91e46') && !code.includes('#ff7994'),
+  "TizenTube must not have its old saturated red mark");
+assert.ok(code.includes('symbol(\'<rect x="3.5" y="8"'),
+  "TizenTube must use the monochrome SVG mark");
 const css = readFileSync("app/src/main/assets/ui.css", "utf8");
 assert.ok(css.includes(".app.add-app .appmark svg") && css.includes("fill: none;"),
   "Add button must preserve its outlined plus icon");

@@ -43,12 +43,12 @@ No sponsored rows, autoplay trailers or analytics. The interface and fonts are s
 
 ## ⚡ Get started
 
-**[Download NiakTV APK](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** · [Release notes](https://github.com/niakw/NiakTV/releases/latest)
+**[Download NiakTV APK](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.4.apk)** · [Release notes](https://github.com/niakw/NiakTV/releases/latest)
 
-A signed APK is ready to install: no compilation, GitHub Actions account or ZIP extraction required. Version 0.3.1 is an early development build, not a production release. The \`main\` branch now develops \`0.3.3-dev\`; only the signed 0.3.1 installer is published at present.
+A signed APK is ready to install: no compilation, GitHub Actions account or ZIP extraction required. Version 0.3.4 is an early-access build, not a final production release. It includes nested Settings navigation with Back returning to the parent menu and a monochrome TizenTube icon matching the launcher.
 
-1. Download `niaktv-0.3.1.apk` using the link above.
-2. Transfer it to the TV and open it with a file manager, allowing installation from that source when prompted. Alternatively, use `adb install -r niaktv-0.3.1.apk`.
+1. Download `niaktv-0.3.4.apk` using the link above.
+2. Transfer it to the TV and open it with a file manager, allowing installation from that source when prompted. Alternatively, use `adb install -r niaktv-0.3.4.apk`.
 3. Open NiakTV, then use **Settings → Home button** to configure the Home behaviour supported by your TV.
 
 **[Installation guide →](INSTALL.md)** Includes commands, first setup, updates, troubleshooting and how to return to the original home.

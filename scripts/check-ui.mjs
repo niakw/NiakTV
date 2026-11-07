@@ -28,6 +28,8 @@ function call(method, params) {
 }
 const expression = `(async()=>{
   const assert=(condition,message)=>{if(!condition)throw new Error(message);};
+  await Promise.all([document.fonts.load('12px Manrope'), document.fonts.load('36px Instrument')]);
+  await document.fonts.ready;
   const rows=['.selection','.inputs-section','.apps-section'].map(q=>document.querySelector(q).getBoundingClientRect());
   assert((document.querySelector('.selection').hidden||rows[0].top<rows[1].top)&&rows[1].top<rows[2].top,'Section order');
   assert(rows[2].bottom<=innerHeight,'Apps dock outside viewport');
@@ -57,7 +59,24 @@ const expression = `(async()=>{
   assert(document.querySelector('#drawer-content [data-action="system-cache-clear"]'),'NiakTV-only cache action missing');
   assert(document.querySelector('#drawer-content [data-key="menu:global-cache"]:disabled'),'Global cache action must remain disabled');
   assert(document.querySelector('.system-stat'),'Storage metrics not rendered');
-  NiakUI.key('back');assert(document.getElementById('overlay').hidden,'Back did not close drawer');
+  NiakUI.key('back');
+  assert(!document.getElementById('overlay').hidden,'Back from Storage should return to System');
+  assert(document.querySelector('#drawer-content [data-action="system-storage-menu"]'),'Storage parent missing on Back');
+  assert(document.activeElement.dataset.action==='system-storage-menu','Storage parent focus lost');
+  NiakUI.key('back');
+  assert(!document.getElementById('overlay').hidden,'Back from System should return to Settings');
+  assert(document.querySelector('#drawer-content [data-action="system-menu"]'),'Main Settings missing on Back');
+  assert(document.activeElement.dataset.action==='system-menu','Settings parent focus lost');
+  NiakUI.key('back');
+  assert(document.getElementById('overlay').hidden,'Back from root Settings should close drawer');
+  // Second navigation path: Settings > Language > Settings > Launcher.
+  NiakUI.key('menu');
+  document.querySelector('#drawer-content [data-action="language-menu"]').click();
+  assert(document.querySelector('#drawer-content [data-action="language"]'),'Language submenu missing');
+  NiakUI.key('back');
+  assert(document.activeElement.dataset.action==='language-menu','Language parent focus lost');
+  NiakUI.key('back');
+  assert(document.getElementById('overlay').hidden,'Settings should close on its own Back');
   // Capture a fresh native model without reading private Android preferences.
   const update=NiakUI.update;
   const original=await new Promise((resolve,reject)=>{

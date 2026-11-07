@@ -40,6 +40,8 @@ if (typeof module !== "undefined" && module.exports)
   let menu = null,
     menuApp = null,
     menuScope = "apps",
+    menuHistory = [],
+    launcherKey = "feature",
     previousKey = "feature",
     toastTimer;
   const $ = (id) => document.getElementById(id);
@@ -78,7 +80,7 @@ if (typeof module !== "undefined" && module.exports)
     "com.vewd.core.browserui": vewdBrowser,
     "org.droidtv.nettvbrowser": philipsBrowser,
     "io.gh.reisxd.tizentube.cobalt":
-      '<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="7" width="28" height="18" rx="6" fill="#e91e46"/><path d="M13 11v10l9-5z" fill="#fff"/><path d="M4 11c3-3 6-3 11-3" stroke="#ff7994" stroke-width="1.5" fill="none"/></svg>',
+      symbol('<rect x="3.5" y="8" width="25" height="16" rx="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m13.5 12 7 4-7 4z" fill="currentColor"/><path d="M10 5h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'),
     "org.droidtv.playtv": television,
     "org.droidtv.nettvrecommender": symbol('<path d="m16 4 3.5 7.1 7.8 1.1-5.7 5.5 1.4 7.8-7-3.7-7 3.7 1.4-7.8-5.7-5.5 7.8-1.1z"/>'),
     "org.droidtv.eum": symbol('<circle cx="16" cy="16" r="12"/><path d="M12 12a4 4 0 0 1 8 0c0 3-4 3-4 6M16 23h.01"/>'),
@@ -406,16 +408,38 @@ if (typeof module !== "undefined" && module.exports)
     }
   }
   function showMenu(type = "settings", app = null) {
-    previousKey = document.activeElement?.dataset.key || previousKey;
+    const focusedKey = document.activeElement?.dataset.key || previousKey;
+    if (!menu) {
+      // Preserve the launcher focus independently from the drawer's focus.
+      launcherKey = focusedKey;
+      menuHistory = [];
+    } else if (menu !== type || menuApp?.id !== app?.id) {
+      menuHistory.push({
+        type: menu, app: menuApp, scope: menuScope, focusedKey,
+      });
+    }
     menu = type;
     menuApp = app;
     $("overlay").hidden = false;
     renderMenu();
   }
   function closeMenu() {
+    menuHistory = [];
     menu = null;
+    menuApp = null;
     $("overlay").hidden = true;
-    focusKey(previousKey);
+    focusKey(launcherKey);
+  }
+  function backMenu() {
+    if (!menuHistory.length) {
+      closeMenu();
+      return;
+    }
+    const parent = menuHistory.pop();
+    menu = parent.type;
+    menuApp = parent.app;
+    menuScope = parent.scope;
+    renderMenu(parent.focusedKey);
   }
   const menuItem = (title, description, action, id = "", key = action, disabled = false) =>
     `<button class="menu-item" ${buttonAttrs(action, id, "menu:" + key)}${disabled ? ' disabled aria-disabled="true"' : ""}><span>${esc(t(title))}${description ? `<small>${esc(t(description))}</small>` : ""}</span><span>›</span></button>`;
@@ -788,6 +812,10 @@ if (typeof module !== "undefined" && module.exports)
   }
   function activate(button) {
     if (!button || button.disabled) return;
+    // Mouse clicks may not focus buttons in the TV WebView: record the clicked
+    // entry so Back returns to that exact item, just as it does with the remote.
+    if (button.dataset.key && document.activeElement !== button)
+      focusKey(button.dataset.key);
     const action = button.dataset.action,
       id = button.dataset.id || "";
     if (action === "menu") {
@@ -795,7 +823,7 @@ if (typeof module !== "undefined" && module.exports)
       return;
     }
     if (action === "close") {
-      closeMenu();
+      backMenu();
       return;
     }
     if (action === "system-menu") {
@@ -839,7 +867,9 @@ if (typeof module !== "undefined" && module.exports)
     }
     if (action === "selection-app") {
       device(action, id);
-      showMenu("settings");
+      // This is an action inside Settings: return, do not create a back-loop.
+      if (menuHistory.length) backMenu();
+      else showMenu("settings");
       return;
     }
     if (action === "app-show") {
@@ -916,7 +946,7 @@ if (typeof module !== "undefined" && module.exports)
     else if (key === "select") activate(document.activeElement);
     else if (key === "menu") showMenu();
     else if (key === "back") {
-      if (menu) closeMenu();
+      if (menu) backMenu();
       else focusKey("feature");
     } else if (key === "long") {
       if (menu) return;

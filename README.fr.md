@@ -43,12 +43,12 @@ Aucune ligne sponsorisée, bande-annonce automatique ou analyse d’usage. L’i
 
 ## ⚡ Prendre ses marques
 
-**[Télécharger l’APK NiakTV](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** · [Notes de version](https://github.com/niakw/NiakTV/releases/latest)
+**[Télécharger l’APK NiakTV](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.4.apk)** · [Notes de version](https://github.com/niakw/NiakTV/releases/latest)
 
-L’APK signé est prêt à installer : aucune compilation, aucun compte GitHub Actions et aucun ZIP à extraire. La version 0.3.1 reste une version de développement, pas une version de production. La branche \`main\` prépare la version \`0.3.3-dev\` ; seul l’APK 0.3.1 est publié et signé actuellement.
+L’APK signé est prêt à installer : aucune compilation, aucun compte GitHub Actions et aucun ZIP à extraire. La version 0.3.4 reste en accès anticipé. Elle corrige le bouton Retour dans les sous-menus (retour au niveau précédent) et adopte un pictogramme TizenTube monochrome assorti au lanceur.
 
-1. Téléchargez `niaktv-0.3.1.apk` avec le lien ci-dessus.
-2. Transférez-le sur la TV et ouvrez-le avec un gestionnaire de fichiers, en autorisant l’installation depuis cette source si Android le demande. Autre possibilité : `adb install -r niaktv-0.3.1.apk`.
+1. Téléchargez `niaktv-0.3.4.apk` avec le lien ci-dessus.
+2. Transférez-le sur la TV et ouvrez-le avec un gestionnaire de fichiers, en autorisant l’installation depuis cette source si Android le demande. Autre possibilité : `adb install -r niaktv-0.3.4.apk`.
 3. Ouvrez NiakTV, puis **Réglages → Bouton Accueil** pour configurer le comportement permis par votre TV.
 
 **[Guide d’installation →](INSTALL.fr.md)** Commandes, premier démarrage, mises à jour, dépannage et retour à l’accueil d’origine.

@@ -10,7 +10,7 @@ Nuvio et une clé TMDB sont facultatifs. Commencez sans ces services si vous vou
 
 ## 1. Récupérer l’APK
 
-Téléchargez directement **[niaktv-0.3.1.apk](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** depuis la [dernière release](https://github.com/niakw/NiakTV/releases/latest). L’installateur signé est prêt à utiliser : aucun outil de compilation, compte GitHub ou ZIP à extraire. La release contient aussi `SHA256SUMS.txt` pour vérifier le fichier téléchargé.
+Téléchargez directement **[niaktv-0.3.4.apk](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.4.apk)** depuis la [dernière release](https://github.com/niakw/NiakTV/releases/latest). L’installateur signé est prêt à utiliser : aucun outil de compilation, compte GitHub ou ZIP à extraire. La release contient aussi `SHA256SUMS.txt` pour vérifier le fichier téléchargé.
 
 ## 2. Installer sur la TV
 
@@ -23,7 +23,7 @@ Activez les options développeur et le débogage ADB sur la TV. Si le firmware p
 ```sh
 adb connect TV_IP:5555
 adb devices
-adb -s TV_IP:5555 install -r niaktv-0.3.1.apk
+adb -s TV_IP:5555 install -r niaktv-0.3.4.apk
 adb -s TV_IP:5555 shell am start -n tv.niak.launcher/.MainActivity
 ```
 
@@ -74,7 +74,7 @@ Les affiches des reprises sont conservées dans un cache privé limité à 64 fi
 
 ## Mises à jour
 
-Utilisez `adb install -r` avec un APK signé par **la même clé** que la version installée. L’APK 0.3.1 publié utilise la clé de signature locale conservée par le projet. Installez les APK des releases ; les artefacts GitHub Actions servent aux contrôles de développement et peuvent utiliser une autre clé temporaire. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indique une incompatibilité de signature : récupérez un APK construit avec la clé d’origine. Désinstaller n’est pas une mise à jour transparente : cela supprime les préférences et la clé TMDB enregistrée.
+Utilisez `adb install -r` avec un APK signé par **la même clé** que la version installée. L’APK 0.3.4 publié utilise la même clé locale conservée que les versions 0.3.1–0.3.3. Installez les APK des releases ; les artefacts GitHub Actions servent aux contrôles de développement et peuvent utiliser une autre clé temporaire. `INSTALL_FAILED_UPDATE_INCOMPATIBLE` indique une incompatibilité de signature : récupérez un APK construit avec la clé d’origine. Désinstaller n’est pas une mise à jour transparente : cela supprime les préférences et la clé TMDB enregistrée.
 
 ## Revenir à l’accueil d’origine
 
