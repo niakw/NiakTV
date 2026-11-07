@@ -61,9 +61,9 @@
     '<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M11 5h13v18H11M3 14h14m-5-5l5 5-5 5"/></svg>';
   const symbol = (path) => `<svg class="ui-symbol" viewBox="0 0 32 32" aria-hidden="true">${path}</svg>`;
   const globe = symbol('<circle cx="16" cy="16" r="12"/><path d="M4 16h24M16 4c-7 6-7 18 0 24 7-6 7-18 0-24z"/>');
-  const zeusBrowser = symbol('<circle cx="16" cy="16" r="12"/><path d="m18 5-9 13h7l-2 9 9-15h-8z"/>');
-  const vewdBrowser = symbol('<path d="m4 8 10 19h4L28 8h-5l-7 13L9 8z"/><path d="M10 4h12"/>');
-  const philipsBrowser = symbol('<circle cx="16" cy="16" r="12"/><path d="m22 10-4 8-8 4 4-8z"/>');
+  const zeusBrowser = symbol('<circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m18 5-9 13h7l-2 9 9-15h-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>');
+  const vewdBrowser = symbol('<path d="m4 8 10 19h4L28 8h-5l-7 13L9 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 4h12" fill="none" stroke="currentColor" stroke-width="1.8"/>');
+  const philipsBrowser = symbol('<circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m22 10-4 8-8 4 4-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>');
   const television = symbol('<rect x="4" y="6" width="24" height="17" rx="3"/><path d="M11 28h10M16 23v5"/>');
   const marks = {
     "com.goodtoolapps.zeus": zeusBrowser,
