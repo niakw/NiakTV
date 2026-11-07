@@ -38,6 +38,9 @@ public final class HomeRedirectService extends AccessibilityService {
   public void onAccessibilityEvent(AccessibilityEvent event) {
     if (event == null || event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
       return;
+    // Opening Google Home temporarily must not immediately bounce back to NiakTV.
+    if (getSharedPreferences("niaktv", MODE_PRIVATE)
+        .getBoolean("stockTemporary", false)) return;
     if (!gate.request(
         getSharedPreferences("niaktv", MODE_PRIVATE).getBoolean("redirect", true),
         event.getPackageName(),

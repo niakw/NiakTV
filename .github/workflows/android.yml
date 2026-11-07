@@ -22,6 +22,7 @@ jobs:
         run: |
           node --check app/src/main/assets/i18n.js
           node --check app/src/main/assets/ui.js
+          node scripts/check-app-visibility.mjs
       - name: Report resolved build and app dependencies
         run: ./gradlew --no-daemon buildEnvironment :app:dependencies --configuration debugRuntimeClasspath > dependency-report.txt
       - name: Check resolved build dependency security floors

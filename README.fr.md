@@ -31,6 +31,10 @@
 | **Un accueil plus léger**    | Le mode performance masque Ma sélection, utilise un fond uni et coupe le chargement des programmes et des images de contenu. Affiches WebP adaptées aux cartes, icônes vectorielles compactes et polices WOFF2 allègent l’interface. Le focus télécommande reste visible.                                                             |
 | **Votre langue**             | Français, anglais ou langue du téléviseur. Les noms d’apps et de programmes gardent leurs libellés d’origine.                                                                                                                 |
 
+**Gestion des applications :** appui long sur OK ou clic droit sur une app pour l’ouvrir, la gérer dans les raccourcis et le dock, consulter ses informations Android ou demander sa désinstallation. Forcer l’arrêt et vider le cache ouvrent les réglages Android lorsque NiakTV ne possède pas l’autorisation système ; *vider le cache* ne déclenche jamais un effacement des données. Les opérations indisponibles pour certaines apps système sont grisées. Le bouton **+** en fin de dock permet d’ajouter les apps détectées mais absentes du dock et de réafficher les apps masquées. Les noms et pictogrammes Zeus, Vewd, Philips et TizenTube sont distincts ; les monogrammes des apps inconnues restent en place.
+
+**Accueil d’origine :** *Temporaire* ouvre l’accueil Google sans modifier le choix permanent, puis rétablit la redirection au retour dans NiakTV. *Permanent* désactive la redirection NiakTV et propose le choix de l’accueil Android lorsque nécessaire. Si Google est désactivé, le réglage guide d’abord vers les paramètres Android au lieu de retirer le seul accès au lanceur.
+
 Aucune ligne sponsorisée, bande-annonce automatique ou analyse d’usage. L’interface et les polices sont stockées sur la TV. Les fonctions principales du lanceur ne nécessitent ni Nuvio ni compte TMDB.
 
 <a id="install"></a>
@@ -39,7 +43,7 @@ Aucune ligne sponsorisée, bande-annonce automatique ou analyse d’usage. L’i
 
 **[Télécharger l’APK NiakTV](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** · [Notes de version](https://github.com/niakw/NiakTV/releases/latest)
 
-L’APK signé est prêt à installer : aucune compilation, aucun compte GitHub Actions et aucun ZIP à extraire. La version 0.3.1 reste une version de développement, pas une version de production.
+L’APK signé est prêt à installer : aucune compilation, aucun compte GitHub Actions et aucun ZIP à extraire. La version 0.3.1 reste une version de développement, pas une version de production. La branche \`main\` prépare la version \`0.3.2-dev\` ; seul l’APK 0.3.1 est publié et signé actuellement.
 
 1. Téléchargez `niaktv-0.3.1.apk` avec le lien ci-dessus.
 2. Transférez-le sur la TV et ouvrez-le avec un gestionnaire de fichiers, en autorisant l’installation depuis cette source si Android le demande. Autre possibilité : `adb install -r niaktv-0.3.1.apk`.

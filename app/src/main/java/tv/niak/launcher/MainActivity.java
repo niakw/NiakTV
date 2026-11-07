@@ -159,6 +159,9 @@ public final class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    // A temporary visit to the original launcher ends as soon as NiakTV resumes.
+    if (prefs.getBoolean("stockTemporary", false))
+      prefs.edit().putBoolean("stockTemporary", false).apply();
     HomeRedirectService.homeResumed();
     if (rendererGone) {
       recreate();
@@ -336,6 +339,44 @@ public final class MainActivity extends Activity {
     }
   }
 
+  private boolean isSystemApp(String id) {
+    try {
+      int flags = getPackageManager().getApplicationInfo(id, 0).flags;
+      return (flags
+              & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP))
+          != 0;
+    } catch (PackageManager.NameNotFoundException missing) {
+      return true; // Fail closed: unknown apps cannot be uninstalled from the launcher.
+    }
+  }
+
+  private void openOriginalHome(boolean temporary) {
+    if (!stockHomeEnabled()) {
+      if (temporary) prefs.edit().putBoolean("stockTemporary", false).apply();
+      new AlertDialog.Builder(this)
+          .setTitle(tr("Réactiver l’accueil Google", "Restore Google Home"))
+          .setMessage(tr(
+              "L’accueil Google est désactivé. Réactivez-le dans les paramètres Android avant de l’ouvrir.",
+              "Google Home is disabled. Enable it in Android settings before opening it."))
+          .setNegativeButton(tr("Annuler", "Cancel"), null)
+          .setPositiveButton(tr("Ouvrir les réglages", "Open settings"),
+              (dialog, button) -> launch(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                  Uri.parse("package:com.google.android.tvlauncher"))))
+          .show();
+      return;
+    }
+    try {
+      startActivity(new Intent(Intent.ACTION_MAIN)
+          .setComponent(new ComponentName(
+              "com.google.android.tvlauncher", "com.google.android.tvlauncher.MainActivity"))
+          .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
+    } catch (RuntimeException unavailable) {
+      if (temporary) prefs.edit().putBoolean("stockTemporary", false).apply();
+      Toast.makeText(this, tr("Impossible d’ouvrir l’accueil Google",
+          "Could not open Google Home"), Toast.LENGTH_LONG).show();
+    }
+  }
+
   private String selectionApp() {
     return DefaultApps.streaming(prefs.getString("selectionApp", ""), launches.keySet());
   }
@@ -427,6 +468,8 @@ public final class MainActivity extends Activity {
                       : "")
               .put("nuvioInstalled", launches.containsKey("com.nuvio.tv"))
               .put("apps", appData)
+              .put("addedApps", new JSONArray(list("addedApps", Collections.emptyList())))
+              .put("hiddenApps", new JSONArray(list("hiddenApps", Collections.emptyList())))
               .put("inputs", inputData)
               .put(
                   "favorites",
@@ -490,7 +533,34 @@ public final class MainActivity extends Activity {
                           Intent.FLAG_ACTIVITY_NEW_TASK
                               | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
               found.put(id, launch);
-              apps.put(new JSONObject().put("id", id).put("name", r.loadLabel(pm).toString()));
+              apps.put(new JSONObject()
+                  .put("id", id).put("name", r.loadLabel(pm).toString())
+                  .put("tvDefault", true)
+                  .put("system", (r.activityInfo.applicationInfo.flags
+                      & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0));
+            }
+            // Also discover ordinary launcher apps. They appear only in the explicit + picker
+            // until the user adds them; Android TV apps retain their existing default visibility.
+            List<ResolveInfo> other = pm.queryIntentActivities(
+                new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0);
+            other.sort(Comparator.comparing(
+                r -> r.loadLabel(pm).toString(), String.CASE_INSENSITIVE_ORDER));
+            for (ResolveInfo r : other) {
+              if (r.activityInfo == null || !r.activityInfo.enabled
+                  || !r.activityInfo.exported) continue;
+              String id = r.activityInfo.packageName;
+              if (id.equals(getPackageName()) || id.equals("com.google.android.tvlauncher")
+                  || found.containsKey(id)) continue;
+              found.put(id, new Intent(Intent.ACTION_MAIN)
+                  .addCategory(Intent.CATEGORY_LAUNCHER)
+                  .setComponent(new ComponentName(id, r.activityInfo.name))
+                  .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                      | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
+              apps.put(new JSONObject()
+                  .put("id", id).put("name", r.loadLabel(pm).toString())
+                  .put("tvDefault", false)
+                  .put("system", (r.activityInfo.applicationInfo.flags
+                      & (ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0));
             }
             if (showSelection()
                 && "com.nuvio.tv"
@@ -706,6 +776,50 @@ public final class MainActivity extends Activity {
       case "app":
         if (launches.containsKey(id)) launch(launches.get(id));
         break;
+      case "app-hide":
+        if (launches.containsKey(id)) {
+          List<String> hidden = list("hiddenApps", Collections.emptyList());
+          if (!hidden.contains(id)) hidden.add(id);
+          prefs.edit().putString("hiddenApps", android.text.TextUtils.join(",", hidden)).apply();
+          postModel();
+        }
+        break;
+      case "app-show":
+        if (launches.containsKey(id)) {
+          List<String> hidden = list("hiddenApps", Collections.emptyList());
+          hidden.remove(id);
+          List<String> added = list("addedApps", Collections.emptyList());
+          if (!added.contains(id)) added.add(id);
+          prefs.edit()
+              .putString("hiddenApps", android.text.TextUtils.join(",", hidden))
+              .putString("addedApps", android.text.TextUtils.join(",", added))
+              .apply();
+          postModel();
+        }
+        break;
+      case "app-info":
+      case "app-force-stop":
+      case "app-cache":
+        if (!launches.containsKey(id)) break;
+        if (!"app-info".equals(action) && isSystemApp(id)) break;
+        // Android does not allow ordinary apps to force-stop or delete another app's cache.
+        // Hand off to Settings; never call "pm clear", which deletes user data.
+        if ("app-force-stop".equals(action))
+          Toast.makeText(this, tr("Choisissez Forcer l’arrêt dans les paramètres Android",
+              "Choose Force stop in Android settings"), Toast.LENGTH_LONG).show();
+        if ("app-cache".equals(action))
+          Toast.makeText(this, tr(
+              "Ouvrez Stockage et cache, puis Vider le cache. Ne choisissez pas Effacer les données.",
+              "Open Storage & cache, then Clear cache. Do not choose Clear storage."),
+              Toast.LENGTH_LONG).show();
+        launch(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:" + id)));
+        break;
+      case "app-uninstall":
+        if (launches.containsKey(id) && !isSystemApp(id))
+          launch(new Intent(Intent.ACTION_UNINSTALL_PACKAGE,
+              Uri.parse("package:" + id)));
+        break;
       case "input":
         if (inputIds.contains(id)) launch(inputIntent(id));
         break;
@@ -820,33 +934,33 @@ public final class MainActivity extends Activity {
         prefs.edit().putBoolean("redirect", true).apply();
         launch(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
         break;
-      case "stock":
-        prefs.edit().putBoolean("redirect", false).apply();
-        if (stockHomeEnabled()) {
-          launch(
-              new Intent()
-                  .setComponent(
-                      new ComponentName(
-                          "com.google.android.tvlauncher",
-                          "com.google.android.tvlauncher.MainActivity")));
-        } else {
+      case "stock-temporary":
+        // Only bypass the accessibility relay until NiakTV resumes.
+        prefs.edit().putBoolean("stockTemporary", true).apply();
+        openOriginalHome(true);
+        break;
+      case "stock-permanent":
+        // Do not disable redirection while Google's launcher is missing or disabled.
+        if (!stockHomeEnabled()) {
+          openOriginalHome(false);
+          break;
+        }
+        // Keep the original launcher installed, its settings and data untouched.
+        prefs.edit().putBoolean("redirect", false)
+            .putBoolean("stockTemporary", false).apply();
+        if (stockHomeEnabled() && nativeHome()) {
           new AlertDialog.Builder(this)
-              .setTitle(tr("Réactiver l’accueil Google", "Restore Google Home"))
-              .setMessage(
-                  tr(
-                      "Dans l’écran suivant, choisissez Activer, puis appuyez sur Accueil. La"
-                          + " redirection NiakTV est arrêtée. Vos données Google sont conservées.",
-                      "On the next screen, choose Enable, then press Home. NiakTV redirection is"
-                          + " off. Your Google data is retained."))
-              .setNegativeButton(tr("Annuler", "Cancel"), null)
-              .setPositiveButton(
-                  tr("Ouvrir les réglages", "Open settings"),
-                  (dialog, button) ->
-                      launch(
-                          new Intent(
-                              Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                              Uri.parse("package:com.google.android.tvlauncher"))))
+              .setTitle(tr("Changer l’accueil par défaut", "Change default Home"))
+              .setMessage(tr(
+                  "NiakTV est encore l’accueil Android par défaut. Choisissez Google dans les réglages Accueil pour un changement permanent. La redirection NiakTV est désactivée.",
+                  "NiakTV is still Android's default Home. Select Google in Home settings for a permanent change. NiakTV redirection is off."))
+              .setNegativeButton(tr("Ouvrir Google", "Open Google"),
+                  (dialog, button) -> openOriginalHome(false))
+              .setPositiveButton(tr("Choisir l’accueil", "Choose Home"),
+                  (dialog, button) -> launch(new Intent(Settings.ACTION_HOME_SETTINGS)))
               .show();
+        } else {
+          openOriginalHome(false);
         }
         postModel();
         break;

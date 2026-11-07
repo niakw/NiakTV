@@ -24,6 +24,16 @@ The 52 Dependabot alerts reviewed on 21 October 2026 concerned transitive depend
 
 `build.gradle` sets patched build-classpath versions: Netty 4.1.139.Final and Protobuf 3.25.9 through their BOMs, Bouncy Castle 1.86, Commons Compress 1.28.0, JDOM 2.0.6.1 and jose4j 0.9.7. Separate AGP device-test configurations are aligned to the same Netty/Protobuf versions. These rules do not add runtime libraries to the app. The Android workflow builds, runs unit tests and lint, and uploads a `dependency-report` showing the resolved build classpath and app runtime classpath. Dependabot checks Gradle and GitHub Actions weekly; its live alert list remains the reference for newly disclosed issues. Alerts must close through corrected dependency resolution, not blanket dismissal.
 
+### Automated source analysis
+
+GitHub's built-in CodeQL default setup already scans the repository, including Java and JavaScript, without adding a duplicate Actions workflow. Extended queries and local-source threat modeling have been requested. Java no-build analysis can be less complete than an instrumented Android build; manual review and Android lint remain necessary.
+
+### Current open alerts and application-management safeguards (7 November 2026)
+
+The repository currently reports **five open Dependabot alerts** for Bouncy Castle (three), Apache HttpClient (one), and Commons Lang (one), all identified as transitive build-tool dependencies. The build's source constraints request patched versions, but an alert is not considered resolved until the **selected** versions are confirmed from the Gradle dependency graph and the GitHub alert state is corrected. Do not dismiss the alerts merely because a version is declared. At the time of this review GitHub's code-scanning and secret-scanning endpoints report no open alerts; this is not a certificate of code safety.
+
+NiakTV never calls \`pm clear\` or an equivalent command to delete another app's data. Unsupported force-stop and clear-cache actions delegate to Android Settings. Hiding an app modifies only NiakTV private preferences and does not disable its Android package. Uninstall uses the OS confirmation interface and checks the selected package against the installed launchable-app inventory. Temporary Google Home launch does not silently disable system apps or remove NiakTV's persistent redirection configuration.
+
 ### What the app stores and contacts
 
 - Favourites, app order, appearance and Home preferences stay in private Android app storage.
@@ -55,6 +65,16 @@ Les parties particulièrement concernées dans NiakTV sont le pont WebView natif
 Les 52 alertes Dependabot examinées le 21 octobre 2026 concernaient les dépendances transitives des outils de compilation et de tests Android (AGP/lint/UTP), enregistrées dans le graphe Gradle soumis. Elles ne correspondaient pas à 52 bibliothèques distinctes embarquées dans le lanceur. Le contrôle des classes DEX définies dans l’APK 0.3.1 publié n’a trouvé aucune classe Netty, Bouncy Castle, Protobuf, JDOM, jose4j ou Commons Compress. Ce contrôle ciblé ne constitue pas un audit général de l’app ou d’Android.
 
 `build.gradle` définit des versions corrigées sur le classpath de compilation : Netty 4.1.139.Final et Protobuf 3.25.9 via leurs BOM, Bouncy Castle 1.86, Commons Compress 1.28.0, JDOM 2.0.6.1 et jose4j 0.9.7. Les configurations séparées des tests sur appareils AGP utilisent les mêmes versions Netty/Protobuf. Ces règles n’ajoutent aucune bibliothèque d’exécution à l’app. Le workflow Android compile, exécute les tests unitaires et le lint, puis publie un `dependency-report` montrant les dépendances résolues des outils et de l’app. Dependabot contrôle Gradle et GitHub Actions chaque semaine ; sa liste d’alertes reste la référence pour les nouvelles vulnérabilités. Les alertes doivent se fermer grâce aux versions corrigées, sans classement en masse comme ignorées.
+
+### Analyse automatique du code source
+
+La configuration CodeQL native de GitHub analyse déjà le dépôt, notamment Java et JavaScript, sans ajouter de workflow redondant. Les requêtes étendues et le modèle de menace prenant en compte les sources locales ont été demandés. L’analyse Java sans compilation peut être moins complète qu’une compilation Android instrumentée ; elle ne dispense pas d’une revue manuelle ni d’Android Lint.
+
+### Alertes ouvertes et garde-fous de gestion des apps (7 novembre 2026)
+
+GitHub indique **cinq alertes Dependabot ouvertes** : Bouncy Castle (trois), Apache HttpClient (une) et Commons Lang (une), sur des dépendances transitives d’outils de compilation. Les contraintes du projet demandent déjà des versions corrigées, mais une alerte n’est pas considérée comme résolue sans contrôle des versions **effectivement sélectionnées** par Gradle et de son état sur GitHub. Ne pas ignorer les alertes au seul motif qu’une version est déclarée. Les API *code scanning* et *secret scanning* ne renvoient aucune alerte ouverte à cette date ; cela ne prouve pas l’absence de vulnérabilités.
+
+NiakTV n’exécute jamais \`pm clear\` ni de commande équivalente qui supprimerait les données privées d’une application tierce. Les actions Forcer l’arrêt et Vider le cache non autorisées renvoient aux paramètres Android. Masquer une app change uniquement les préférences privées NiakTV et ne désactive aucun package Android. La désinstallation passe par la confirmation Android après vérification de l’app dans l’inventaire. Le retour temporaire à Google ne désactive aucun composant système et préserve la configuration de redirection durable.
 
 ### Données conservées et connexions
 

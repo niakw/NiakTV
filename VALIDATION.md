@@ -30,6 +30,12 @@ adb -s TV_IP:5555 forward --remove tcp:39222
 
 The script temporarily applies fixture models to the local page for absent-app and language cases, then restores the native model. It does not uninstall apps or change their data. Avoid interacting with the launcher while it runs. WebView inspection is available only in debuggable builds.
 
+### App management regression matrix (0.3.2-dev)
+
+The lightweight Node contract check runs in CI and verifies default TV visibility, explicitly added launcher apps, hidden-app precedence, legacy preview data, translations, and package-specific icon mappings. It is a source-level test, **not** an on-device UI or accessibility test.
+
+The following require a signed APK matching the installed app, or a safely isolated debug test install: long OK/right-click context menu, disabled system-app actions, Android's confirmation for uninstall, clear-cache opening Settings without touching app data, restoring apps through the last + item, duplicate-browser disambiguation, and temporary/permanent original-home behaviour with Google enabled or disabled. A one-time visit to Google must not disable NiakTV's saved Home relay.
+
 ### Device evidence and performance
 
 The cinema interface and recovery paths have been exercised on Android TV 12. Appearance, language and Performance mode persistence have been checked after an app restart. Real Nuvio links opened the associated programme/source-selection flow; this does not validate a complete playback session.
@@ -74,6 +80,12 @@ adb -s TV_IP:5555 forward --remove tcp:39222
 ```
 
 Le script applique temporairement des modèles de contrôle à la page locale pour les cas d’app absente et les langues, puis rétablit le modèle natif. Il ne désinstalle aucune app et ne modifie pas leurs données. Évitez d’utiliser le lanceur pendant son exécution. L’inspection WebView n’est disponible que dans les builds débogables.
+
+### Matrice de régression — applications (0.3.2-dev)
+
+Le test Node léger exécuté en CI vérifie la visibilité par défaut des apps TV, les applications ajoutées, la priorité du masquage, les anciens modèles d’aperçu, les traductions et les identifiants de pictogrammes. C’est un test du code source, **pas** une validation complète sur téléviseur.
+
+Une mise à jour signée avec la même clé que l’APK installé, ou une installation de débogage isolée, reste nécessaire pour contrôler : appui long/clic droit, actions système grisées, confirmation de désinstallation par Android, ouverture du cache dans les réglages sans supprimer les données, réaffichage via le + final, différenciation des navigateurs, retour temporaire/permanent à Google lorsque ce lanceur est activé/désactivé. Le retour temporaire ne doit pas modifier le relais Accueil sauvegardé.
 
 ### Essais sur appareil et performances
 

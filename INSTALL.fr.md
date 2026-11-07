@@ -52,7 +52,7 @@ adb -s TV_SERIAL shell cmd package resolve-activity --brief -a android.intent.ac
 
 Remplacez `TV_SERIAL` par l’appareil listé par `adb devices`. Vérifiez que le résolveur indique `tv.niak.launcher/.MainActivity`, puis testez Accueil depuis NiakTV et une autre app. Dans ce mode, Accueil ouvre directement NiakTV sans nécessiter le relais de compatibilité.
 
-Pour rétablir Google : **Réglages → Accueil d’origine → Ouvrir les réglages → Activer**, puis appuyez sur Accueil. La redirection NiakTV est coupée et les réglages Android de Google s’ouvrent. Solution ADB de secours : `adb -s TV_SERIAL shell pm default-state --user 0 com.google.android.tvlauncher`, puis choisissez **Accueil d’origine** dans NiakTV. Aucune donnée d’app n’est effacée.
+Pour rétablir Google : **Réglages → Accueil d’origine → Accueil d’origine permanent**, puis, si Google est désactivé, **Ouvrir les réglages → Activer** avant de revenir au choix permanent. La redirection NiakTV est coupée et les réglages Android de Google s’ouvrent. Solution ADB de secours : `adb -s TV_SERIAL shell pm default-state --user 0 com.google.android.tvlauncher`, puis choisissez **Accueil d’origine** dans NiakTV. Aucune donnée d’app n’est effacée.
 
 ## 4. Choisir son ambiance
 
@@ -78,7 +78,7 @@ Utilisez `adb install -r` avec un APK signé par **la même clé** que la versio
 
 ## Revenir à l’accueil d’origine
 
-Ouvrez **Réglages → Accueil d’origine** pour couper la redirection NiakTV et ouvrir Google. Si Google a été désactivé avec la configuration avancée ci-dessus, NiakTV vous guide vers ses paramètres Android pour choisir **Activer** au préalable. Pour un retour durable, désactivez uniquement le service **NiakTV — bouton Accueil** dans les paramètres d’accessibilité Android, puis sélectionnez l’accueil d’origine si la TV propose ce choix. Cette action cible actuellement Google Android TV ; un autre accueil fabricant peut nécessiter une sélection dans les paramètres Android.
+Ouvrez **Réglages → Accueil d’origine** puis **Accueil d’origine temporaire** pour afficher Google une fois (la redirection NiakTV n’est pas modifiée) ou **Accueil d’origine permanent** pour désactiver la redirection NiakTV et sélectionner Google comme accueil Android par défaut si nécessaire. Si Google a été désactivé avec la configuration avancée ci-dessus, NiakTV vous guide vers ses paramètres Android pour choisir **Activer** au préalable. Pour un retour durable, désactivez uniquement le service **NiakTV — bouton Accueil** dans les paramètres d’accessibilité Android, puis sélectionnez l’accueil d’origine si la TV propose ce choix. Cette action cible actuellement Google Android TV ; un autre accueil fabricant peut nécessiter une sélection dans les paramètres Android.
 
 ## Dépannage
 

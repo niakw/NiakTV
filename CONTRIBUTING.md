@@ -34,6 +34,10 @@ End users install the signed APK attached to [Releases](https://github.com/niakw
 
 The APK bundles WOFF2 fonts. Original TTF files are kept in `tools/font-sources/`; their OFL notices remain in `app/src/main/assets/fonts/`. With `fonttools[woff]==4.60.1` installed in a local Python environment, run `python tools/compress_fonts.py`. The conversion keeps all glyphs, metrics and variable weight axes and checks them against the source. It does not subset characters.
 
+### App management safety
+
+The TV app dock is a launcher-only view: hiding an app changes NiakTV preferences, never the app's Android enabled state. An installed app can be offered by the **+** picker only if Android resolves an exported launchable activity. Each native action checks the selected package against the current discovered package map. Force stop and clear cache delegate to Android Settings; **never** replace clear cache with \`pm clear\` or another operation that removes private app data. Disabling a system app or changing Android's default Home silently is out of scope. Keep translations and these safeguards covered in code review.
+
 ### Find the relevant code
 
 | Area                                                 | Location                                                     |

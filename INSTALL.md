@@ -52,7 +52,7 @@ adb -s TV_SERIAL shell cmd package resolve-activity --brief -a android.intent.ac
 
 Replace `TV_SERIAL` with the device listed by `adb devices`. Confirm the resolver names `tv.niak.launcher/.MainActivity`, then test Home from NiakTV and another app. In this mode Home goes directly to NiakTV and does not need the compatibility relay.
 
-To restore Google, use **Settings → Original home → Open settings → Enable**, then press Home. This turns off NiakTV redirection and opens Google’s Android app settings. As an ADB fallback, run `adb -s TV_SERIAL shell pm default-state --user 0 com.google.android.tvlauncher`, then choose **Original home** in NiakTV. No app data is cleared.
+To restore Google, choose **Settings → Original home → Original home permanently**. If Google is disabled, open its Android app settings and choose **Enable** before making the permanent Home selection. This turns off NiakTV redirection and opens Google’s Android app settings. As an ADB fallback, run `adb -s TV_SERIAL shell pm default-state --user 0 com.google.android.tvlauncher`, then choose **Original home** in NiakTV. No app data is cleared.
 
 ## 4. Choose your atmosphere
 
@@ -78,7 +78,7 @@ Use `adb install -r` with an APK signed by the **same key** as the installed ver
 
 ## Return to the original home
 
-Open **Settings → Original home** to stop NiakTV redirection and open Google home. If Google was disabled using the advanced setup above, NiakTV guides you to its Android settings to choose **Enable** first. For a lasting return, disable only the **NiakTV — Home button** service in Android accessibility settings and select the original Home app if your TV offers the choice. This action currently targets Google Android TV home; other manufacturer homes may need to be selected in Android settings.
+Open **Settings → Original home → Original home temporarily** to visit Google once while preserving NiakTV redirection, or **Original home permanently** to turn off redirection and select Google as Android's default Home where needed. If Google was disabled using the advanced setup above, NiakTV guides you to its Android settings to choose **Enable** first. For a lasting return, disable only the **NiakTV — Home button** service in Android accessibility settings and select the original Home app if your TV offers the choice. This action currently targets Google Android TV home; other manufacturer homes may need to be selected in Android settings.
 
 ## Troubleshooting
 

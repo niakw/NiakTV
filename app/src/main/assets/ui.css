@@ -641,6 +641,24 @@ footer {
   background: #22332d;
   outline-offset: 0;
 }
+.menu-item:disabled {
+  color: #626d76;
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+.menu-item:disabled small {
+  color: #626d76;
+}
+.add-app .appmark {
+  color: var(--accent);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.add-app .app-name {
+  color: var(--accent);
+}
 .menu-item small {
   display: block;
   color: #909da3;

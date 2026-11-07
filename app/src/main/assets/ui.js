@@ -61,10 +61,16 @@
     '<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M11 5h13v18H11M3 14h14m-5-5l5 5-5 5"/></svg>';
   const symbol = (path) => `<svg class="ui-symbol" viewBox="0 0 32 32" aria-hidden="true">${path}</svg>`;
   const globe = symbol('<circle cx="16" cy="16" r="12"/><path d="M4 16h24M16 4c-7 6-7 18 0 24 7-6 7-18 0-24z"/>');
+  const zeusBrowser = symbol('<circle cx="16" cy="16" r="12"/><path d="m18 5-9 13h7l-2 9 9-15h-8z"/>');
+  const vewdBrowser = symbol('<path d="m4 8 10 19h4L28 8h-5l-7 13L9 8z"/><path d="M10 4h12"/>');
+  const philipsBrowser = symbol('<circle cx="16" cy="16" r="12"/><path d="m22 10-4 8-8 4 4-8z"/>');
   const television = symbol('<rect x="4" y="6" width="24" height="17" rx="3"/><path d="M11 28h10M16 23v5"/>');
   const marks = {
-    "com.goodtoolapps.zeus": globe,
-    "com.vewd.core.browserui": globe,
+    "com.goodtoolapps.zeus": zeusBrowser,
+    "com.vewd.core.browserui": vewdBrowser,
+    "org.droidtv.nettvbrowser": philipsBrowser,
+    "io.gh.reisxd.tizentube.cobalt":
+      '<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="7" width="28" height="18" rx="6" fill="#e91e46"/><path d="M13 11v10l9-5z" fill="#fff"/><path d="M4 11c3-3 6-3 11-3" stroke="#ff7994" stroke-width="1.5" fill="none"/></svg>',
     "org.droidtv.playtv": television,
     "org.droidtv.nettvrecommender": symbol('<path d="m16 4 3.5 7.1 7.8 1.1-5.7 5.5 1.4 7.8-7-3.7-7 3.7 1.4-7.8-5.7-5.5 7.8-1.1z"/>'),
     "org.droidtv.eum": symbol('<circle cx="16" cy="16" r="12"/><path d="M12 12a4 4 0 0 1 8 0c0 3-4 3-4 6M16 23h.01"/>'),
@@ -114,14 +120,16 @@
     "com.alphainventor.filemanager": t("Fichiers"),
     "com.sportzx.live": "SportzX",
     "com.nuvio.tv": "Nuvio",
+    "io.gh.reisxd.tizentube.cobalt": "TizenTube",
   };
   function mark(app) {
     return marks[app.id] || `<svg class="app-monogram" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="8"/><text x="16" y="16" text-anchor="middle" dominant-baseline="central">${esc(Array.from(appName(app))[0] || "A")}</text></svg>`;
   }
   const localizedNames = {
     "com.alphainventor.filemanager": "Fichiers",
-    "com.goodtoolapps.zeus": "Navigateur",
-    "com.vewd.core.browserui": "Navigateur",
+    "com.goodtoolapps.zeus": "Navigateur Zeus",
+    "com.vewd.core.browserui": "Navigateur Vewd",
+    "org.droidtv.nettvbrowser": "Navigateur Philips",
     "org.droidtv.nettvrecommender": "Découvrir",
     "org.droidtv.eum": "Aide",
     "org.droidtv.playtv": "TV en direct",
@@ -132,6 +140,10 @@
   };
   function appName(app) {
     return localizedNames[app.id] ? t(localizedNames[app.id]) : names[app.id] || app.name;
+  }
+  function inTvDock(app) {
+    return (app.tvDefault !== false || (model.addedApps || []).includes(app.id)) &&
+      !(model.hiddenApps || []).includes(app.id);
   }
   function buttonAttrs(action, id, key) {
     return `data-action="${action}" data-id="${esc(id)}" data-key="${esc(key)}" tabindex="-1"`;
@@ -245,15 +257,16 @@
     const ordered = [
       ...model.order
         .map((id) => model.apps.find((a) => a.id === id))
-        .filter(Boolean),
-      ...model.apps.filter((app) => !model.order.includes(app.id)),
+        .filter((app) => app && inTvDock(app)),
+      ...model.apps.filter((app) => !model.order.includes(app.id) && inTvDock(app)),
     ];
     setMarkup("apps", ordered
       .map(
         (app) =>
-          `<button class="app" ${buttonAttrs("app", app.id, "app:" + app.id)} aria-label="${esc(app.name)}"><span class="appmark">${mark(app)}</span><span class="app-name">${esc(appName(app))}</span></button>`,
+          `<button class="app" ${buttonAttrs("app", app.id, "app:" + app.id)} aria-label="${esc(appName(app))}"><span class="appmark">${mark(app)}</span><span class="app-name">${esc(appName(app))}</span></button>`,
       )
-      .join(""));
+      .join("") +
+      `<button class="app add-app" ${buttonAttrs("apps-add", "", "apps:add")} aria-label="${esc(t("Ajouter des applications"))}"><span class="appmark"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="M16 9v14M9 16h14"/></svg></span><span class="app-name">${esc(t("Ajouter"))}</span></button>`);
     const releaseDate = releaseDateLabel();
     $("wallpaper-credit").textContent =
       background !== "cinema"
@@ -318,7 +331,7 @@
     }
   }
   function rows() {
-    if (menu) return [[...$("overlay").querySelectorAll("button")]];
+    if (menu) return [[...$("overlay").querySelectorAll("button:not(:disabled)")]];
     return [
       [document.querySelector(".settings-button")],
       [...$("continue").querySelectorAll("button")],
@@ -397,8 +410,8 @@
     $("overlay").hidden = true;
     focusKey(previousKey);
   }
-  const menuItem = (title, description, action, id = "", key = action) =>
-    `<button class="menu-item" ${buttonAttrs(action, id, "menu:" + key)}><span>${esc(t(title))}${description ? `<small>${esc(t(description))}</small>` : ""}</span><span>›</span></button>`;
+  const menuItem = (title, description, action, id = "", key = action, disabled = false) =>
+    `<button class="menu-item" ${buttonAttrs(action, id, "menu:" + key)}${disabled ? ' disabled aria-disabled="true"' : ""}><span>${esc(t(title))}${description ? `<small>${esc(t(description))}</small>` : ""}</span><span>›</span></button>`;
   function renderMenu(active) {
     let html = "",
       title = t("Réglages");
@@ -506,8 +519,8 @@
         ) +
         menuItem(
           t("Accueil d’origine"),
-          model.stockHomeEnabled === false ? t("Réactiver Google dans les réglages Android") : t("Retour réversible vers l’accueil Google"),
-          "stock",
+          t("Temporaire ou permanent"),
+          "stock-menu",
         ) +
         menuItem(t("Paramètres de la TV"), "", "settings") +
         menuItem(t("À propos et crédits"), "", "about");
@@ -566,23 +579,60 @@
               `<button class="menu-item" ${buttonAttrs("favorite-toggle", app.id, "menu:favorite:" + app.id)}><span>${esc(app.name)}</span><span class="check">${model.favorites.includes(app.id) ? "✓" : "+"}</span></button>`,
           )
           .join("");
+    } else if (menu === "stock") {
+      title = t("Accueil d’origine");
+      html = menuItem(
+        t("Accueil d’origine temporaire"),
+        t("Ouvrir Google une fois, sans désactiver la redirection NiakTV"),
+        "stock-temporary",
+      ) + menuItem(
+        t("Accueil d’origine permanent"),
+        t("Arrêter la redirection NiakTV et choisir l’accueil par défaut"),
+        "stock-permanent",
+      );
+    } else if (menu === "apps-add") {
+      title = t("Ajouter des applications");
+      const available = model.apps.filter((app) => !inTvDock(app));
+      html = `<p class="menu-note">${esc(t("Applications masquées et applications installées non présentes dans Apps TV."))}</p>` +
+        (available.length
+          ? available.map((app) => menuItem(
+              appName(app),
+              (model.hiddenApps || []).includes(app.id)
+                ? t("Masquée · réafficher dans Apps TV")
+                : t("Non affichée · ajouter dans Apps TV"),
+              "app-show", app.id, "show:" + app.id,
+            )).join("")
+          : `<p class="menu-note">${esc(t("Toutes les applications disponibles sont affichées."))}</p>`);
     } else if (menu === "app" && menuApp) {
       title = appName(menuApp);
-      html =
+      const visible = inTvDock(menuApp);
+      html = menuItem(t("Ouvrir l’application"), "", "app", menuApp.id, "open") +
+        menuItem(t("Forcer l’arrêt"),
+          t("À confirmer dans les paramètres Android"),
+          "app-force-stop", menuApp.id, "force", !!menuApp.system) +
+        menuItem(t("Vider le cache"),
+          t("Stockage et cache Android · aucune donnée supprimée"),
+          "app-cache", menuApp.id, "cache", !!menuApp.system) +
         menuItem(
           model.favorites.includes(menuApp.id)
             ? t("Retirer de Ma sélection")
             : t("Ajouter à Ma sélection"),
-          "",
-          "favorite-toggle",
-          menuApp.id,
-          "favorite:" + menuApp.id,
+          "", "favorite-toggle", menuApp.id, "favorite:" + menuApp.id,
         ) +
+        menuItem(t("Changer la position dans Apps TV"), "",
+          "move-menu", menuApp.id, "move", !visible) +
+        (menuScope === "favorites"
+          ? menuItem(t("Changer la position dans Ma sélection"), "",
+              "move-favorite-menu", menuApp.id, "move-favorite")
+          : "") +
+        menuItem(t("Informations sur l’application"),
+          "", "app-info", menuApp.id, "info") +
+        menuItem(t("Désinstaller l’application"),
+          t("Confirmation par Android"),
+          "app-uninstall", menuApp.id, "uninstall", !!menuApp.system) +
         menuItem(
-          menuScope === "favorites" ? t("Changer la position dans Ma sélection") : t("Changer la position dans Apps TV"),
-          "",
-          menuScope === "favorites" ? "move-favorite-menu" : "move-menu",
-          menuApp.id,
+          visible ? t("Retirer l’application des Apps TV") : t("Réafficher dans Apps TV"),
+          "", visible ? "app-hide" : "app-show", menuApp.id, "tv-visibility",
         );
     } else if ((menu === "move" || menu === "move-favorite") && menuApp) {
       title = t("Placer") + " " + appName(menuApp);
@@ -592,6 +642,10 @@
           .filter(Boolean),
         ...model.apps.filter((a) => !model.order.includes(a.id)),
       ];
+      if (menu === "move") {
+        const shown = ordered.filter(inTvDock);
+        ordered.splice(0, ordered.length, ...shown);
+      }
       html = ordered
         .map((app, index) =>
           menuItem(
@@ -628,14 +682,14 @@
     }
     $("drawer-title").textContent = t(title);
     $("drawer-content").innerHTML = html;
-    const buttons = [...$("drawer-content").querySelectorAll("button")];
+    const buttons = [...$("drawer-content").querySelectorAll("button:not(:disabled)")];
     if (active && buttons.some((b) => b.dataset.key === active))
       focusKey(active);
     else if (buttons[0]) focusKey(buttons[0].dataset.key);
     else $("overlay").querySelector(".close").focus();
   }
   function activate(button) {
-    if (!button) return;
+    if (!button || button.disabled) return;
     const action = button.dataset.action,
       id = button.dataset.id || "";
     if (action === "menu") {
@@ -644,6 +698,14 @@
     }
     if (action === "close") {
       closeMenu();
+      return;
+    }
+    if (action === "stock-menu") {
+      showMenu("stock");
+      return;
+    }
+    if (action === "apps-add") {
+      showMenu("apps-add");
       return;
     }
     if (["language-menu", "background-menu", "palette-menu", "selection-app-menu"].includes(action)) {
@@ -661,6 +723,18 @@
     if (action === "selection-app") {
       device(action, id);
       showMenu("settings");
+      return;
+    }
+    if (action === "app-show") {
+      device(action, id);
+      toast(t("Application ajoutée aux Apps TV"));
+      if (menu === "app") closeMenu();
+      return;
+    }
+    if (action === "app-hide") {
+      device(action, id);
+      closeMenu();
+      toast(t("Application masquée dans Apps TV"));
       return;
     }
     if (action === "favorite-toggle") {
@@ -690,7 +764,12 @@
         "app",
         "input",
         "tv",
-        "stock",
+        "stock-temporary",
+        "stock-permanent",
+        "app-info",
+        "app-force-stop",
+        "app-cache",
+        "app-uninstall",
         "settings",
         "home",
         "tmdb",
@@ -723,6 +802,14 @@
   document.addEventListener("click", (event) => {
     const button = event.target.closest("button");
     if (button) activate(button);
+  });
+  document.addEventListener("contextmenu", (event) => {
+    const item = event.target.closest('button[data-action="app"]');
+    if (!item) return;
+    event.preventDefault();
+    menuScope = item.closest("#favorites") ? "favorites" : "apps";
+    const app = model.apps.find((entry) => entry.id === item.dataset.id);
+    if (app) showMenu("app", app);
   });
   let enterTimer = null,
     longPressed = false;
