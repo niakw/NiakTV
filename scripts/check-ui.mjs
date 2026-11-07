@@ -46,6 +46,17 @@ const expression = `(async()=>{
   if(first.dataset.key==='feature'){NiakUI.key('down');assert(document.activeElement.closest('#favorites'),'Down must reach favorites');NiakUI.key('down');assert(document.activeElement.closest('#inputs'),'Down must reach inputs');}
   if(document.activeElement.closest('#inputs')){NiakUI.key('down');assert(document.activeElement.closest('#apps'),'Down must reach app dock');}
   NiakUI.key('menu');assert(!document.getElementById('overlay').hidden,'Settings drawer did not open');
+  const system=document.querySelector('#drawer-content [data-action="system-menu"]');
+  assert(system,'System settings entry missing');
+  system.click();
+  assert(document.querySelector('#drawer-content [data-action="system-storage-menu"]'),'Storage section missing');
+  assert(document.querySelector('#drawer-content [data-action="system-memory-menu"]'),'RAM section missing');
+  assert(document.querySelector('#drawer-content [data-action="system-startup-menu"]'),'Startup section missing');
+  assert(document.querySelector('#drawer-content [data-action="system-permissions-menu"]'),'Permissions section missing');
+  document.querySelector('#drawer-content [data-action="system-storage-menu"]').click();
+  assert(document.querySelector('#drawer-content [data-action="system-cache-clear"]'),'NiakTV-only cache action missing');
+  assert(document.querySelector('#drawer-content [data-key="menu:global-cache"]:disabled'),'Global cache action must remain disabled');
+  assert(document.querySelector('.system-stat'),'Storage metrics not rendered');
   NiakUI.key('back');assert(document.getElementById('overlay').hidden,'Back did not close drawer');
   // Capture a fresh native model without reading private Android preferences.
   const update=NiakUI.update;

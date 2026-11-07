@@ -31,6 +31,8 @@
 | **A lighter home**         | Performance mode hides My selection, uses a solid background and stops programme and content-image loading. Sized WebP artwork, compact vector icons and WOFF2 fonts keep the interface light. The remote focus stays visible.                            |
 | **Your language**          | English, French or the TV’s language. App and programme names keep their original labels.                                                                              |
 
+**System settings:** Settings → Apps & system includes installed apps, per-app permissions, declared boot receivers (partial, not proof of running processes), live total/available device storage and RAM, NiakTV cache, and Android shortcuts for Wi-Fi, display, accessibility, and device info. Clearing NiakTV's cache requires confirmation and cannot remove another app's data. Global cache wipes or mass force-stop are not available to ordinary Android launchers.
+
 **App management:** hold OK or right-click an app to open it, organise shortcuts and TV apps, visit Android's app information page or request uninstall. Force-stop and clear-cache lead to Android Settings where direct system privileges are unavailable; *clear cache* never invokes clearing app data. Unsupported actions on system apps are disabled. The permanent **+** button at the end of the dock restores hidden apps and adds detected installed apps not yet in the dock. Zeus, Vewd, Philips and TizenTube use distinct names and marks; unknown app monograms remain unchanged.
 
 **Original home:** *Temporary* opens Google Home once without changing the persistent redirection choice, restored when NiakTV resumes. *Permanent* disables NiakTV redirection and prompts for Android's default Home selection when necessary. When Google Home is disabled, NiakTV points to its settings instead of disabling the working home path.
@@ -43,7 +45,7 @@ No sponsored rows, autoplay trailers or analytics. The interface and fonts are s
 
 **[Download NiakTV APK](https://github.com/niakw/NiakTV/releases/latest/download/niaktv-0.3.1.apk)** · [Release notes](https://github.com/niakw/NiakTV/releases/latest)
 
-A signed APK is ready to install: no compilation, GitHub Actions account or ZIP extraction required. Version 0.3.1 is an early development build, not a production release. The \`main\` branch now develops \`0.3.2-dev\`; only the signed 0.3.1 installer is published at present.
+A signed APK is ready to install: no compilation, GitHub Actions account or ZIP extraction required. Version 0.3.1 is an early development build, not a production release. The \`main\` branch now develops \`0.3.3-dev\`; only the signed 0.3.1 installer is published at present.
 
 1. Download `niaktv-0.3.1.apk` using the link above.
 2. Transfer it to the TV and open it with a file manager, allowing installation from that source when prompted. Alternatively, use `adb install -r niaktv-0.3.1.apk`.

@@ -34,7 +34,11 @@ The repository had **six Dependabot alerts** for Bouncy Castle (three), Apache H
 
 NiakTV never calls \`pm clear\` or an equivalent command to delete another app's data. Unsupported force-stop and clear-cache actions delegate to Android Settings. Hiding an app modifies only NiakTV private preferences and does not disable its Android package. Uninstall uses the OS confirmation interface and checks the selected package against the installed launchable-app inventory. Temporary Google Home launch does not silently disable system apps or remove NiakTV's persistent redirection configuration.
 
-### What the app stores and contacts
+### System tools threat model
+
+System status relies on public Storage/ActivityManager APIs; it does not inspect other apps' private storage or their processes. Startup detection declares a narrow package-visibility query for BOOT_COMPLETED receivers, never QUERY_ALL_PACKAGES, and results cannot be treated as proof an app has started. Permission changes, app management and other system controls are performed by Android Settings, not by a WebView-originated shell command. Clearing cache is limited to filename-allowlisted artwork and generated files under NiakTV's own private getCacheDir(), and requires an explicit confirmation. No mass force-stop, background-process killer, root request, shell bridge or silent cross-app cache deletion is present.
+
+### What the app stores and contacts### What the app stores and contacts
 
 - Favourites, app order, appearance and Home preferences stay in private Android app storage.
 - A configured TMDB credential is stored separately in private preferences, excluded from backup and never passed to the JavaScript interface. The user can remove it in the TMDB dialog.
@@ -76,7 +80,11 @@ Le dépôt a compté **six alertes Dependabot** : Bouncy Castle (trois), Apache 
 
 NiakTV n’exécute jamais \`pm clear\` ni de commande équivalente qui supprimerait les données privées d’une application tierce. Les actions Forcer l’arrêt et Vider le cache non autorisées renvoient aux paramètres Android. Masquer une app change uniquement les préférences privées NiakTV et ne désactive aucun package Android. La désinstallation passe par la confirmation Android après vérification de l’app dans l’inventaire. Le retour temporaire à Google ne désactive aucun composant système et préserve la configuration de redirection durable.
 
-### Données conservées et connexions
+### Modèle de menace des outils système
+
+Les mesures proviennent d’API publiques de stockage et d’ActivityManager ; NiakTV ne lit ni les fichiers privés ni les processus internes des autres applications. Le détecteur de démarrage déclare uniquement une requête ciblée des récepteurs BOOT_COMPLETED, sans QUERY_ALL_PACKAGES : les résultats ne prouvent pas une exécution. Les permissions et commandes protégées passent par les réglages Android, sans pont shell vers la WebView. Le nettoyage confirmé est limité aux fichiers d’illustration et aux fichiers générés dans le seul getCacheDir() privé de NiakTV, avec noms autorisés explicitement. Aucun forçage d’arrêt global, outil root ou effacement silencieux des caches tiers n’est ajouté.
+
+### Données conservées et connexions### Données conservées et connexions
 
 - Favoris, ordre des apps, apparence et préférences Accueil restent dans le stockage Android privé de l’app.
 - La clé TMDB configurée est conservée séparément dans des préférences privées, exclues des sauvegardes et jamais transmises à l’interface JavaScript. Le dialogue TMDB permet de l’oublier.

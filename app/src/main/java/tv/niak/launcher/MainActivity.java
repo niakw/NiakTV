@@ -45,6 +45,9 @@ public final class MainActivity extends Activity {
   private final List<ResumeStore.Item> resumes = new ArrayList<>();
   private final List<String> inputIds = new ArrayList<>();
   private JSONArray appData = new JSONArray(), inputData = new JSONArray();
+  private JSONArray bootCandidates = new JSONArray();
+  private String bootStatus = "idle";
+  private boolean bootScanning;
   private SharedPreferences prefs;
   private WallpaperStore wallpapers;
   private ArtworkCache artworkCache;
@@ -445,6 +448,123 @@ public final class MainActivity extends Activity {
     scheduleMidnight();
   }
 
+  /** Read-only system metrics: no access to other apps' private data. */
+  private JSONObject systemMetrics() throws JSONException {
+    JSONObject metrics = new JSONObject();
+    try {
+      StatFs storage = new StatFs(Environment.getDataDirectory().getAbsolutePath());
+      metrics.put("diskTotal", storage.getTotalBytes())
+          .put("diskFree", storage.getAvailableBytes());
+    } catch (RuntimeException unavailable) {
+      metrics.put("diskTotal", 0).put("diskFree", 0);
+    }
+    ActivityManager activity = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+    ActivityManager.MemoryInfo ram = new ActivityManager.MemoryInfo();
+    if (activity != null) activity.getMemoryInfo(ram);
+    metrics.put("ramTotal", ram.totalMem).put("ramFree", ram.availMem);
+    long cache = 0;
+    File[] entries = getCacheDir().listFiles();
+    if (entries != null)
+      for (File file : entries)
+        if (file.isFile() && isNiakCacheFile(file.getName())) cache += file.length();
+    return metrics.put("niakCache", cache)
+        .put("androidVersion", Build.VERSION.RELEASE);
+  }
+
+  private static boolean isNiakCacheFile(String name) {
+    return "scene.webp".equals(name)
+        || name.matches("[a-f0-9]{64}\\.(webp|jpg)")
+        || name.matches("art-[^/]+\\.tmp");
+  }
+
+  private void scanBootReceivers() {
+    if (bootScanning) return;
+    bootScanning = true;
+    bootStatus = "loading";
+    postModel();
+    catalogueIO.execute(() -> {
+      JSONArray candidates = new JSONArray();
+      boolean ok = false;
+      try {
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> receivers =
+            pm.queryBroadcastReceivers(new Intent(Intent.ACTION_BOOT_COMPLETED), 0);
+        Map<String, String> distinct = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (ResolveInfo receiver : receivers) {
+          if (receiver.activityInfo == null || receiver.activityInfo.applicationInfo == null)
+            continue;
+          ApplicationInfo app = receiver.activityInfo.applicationInfo;
+          if (!app.enabled || !receiver.activityInfo.enabled) continue;
+          if (!distinct.containsKey(app.packageName))
+            distinct.put(app.packageName, pm.getApplicationLabel(app).toString());
+        }
+        List<Map.Entry<String, String>> sorted = new ArrayList<>(distinct.entrySet());
+        sorted.sort(Comparator.comparing(Map.Entry::getValue, String.CASE_INSENSITIVE_ORDER));
+        for (Map.Entry<String, String> entry : sorted)
+          candidates.put(new JSONObject()
+              .put("id", entry.getKey()).put("name", entry.getValue()));
+        ok = true;
+      } catch (RuntimeException | JSONException ignored) {
+        // Android app-visibility rules and OEM policies can limit detection.
+      }
+      JSONArray result = candidates;
+      String status = ok ? "ready" : "unavailable";
+      main.post(() -> {
+        bootCandidates = result;
+        bootStatus = status;
+        bootScanning = false;
+        if (!isDestroyed()) postModel();
+      });
+    });
+  }
+
+  private void clearOnlyNiakCache() {
+    new AlertDialog.Builder(this)
+        .setTitle(tr("Vider le cache NiakTV", "Clear NiakTV cache"))
+        .setMessage(tr(
+            "Supprime uniquement les images et fichiers temporaires de NiakTV. "
+                + "Aucune donnée, aucun favori, aucune clé TMDB ni cache d’une autre application ne sera effacé.",
+            "Deletes only NiakTV images and temporary files. No app data, favourites, "
+                + "TMDB key or another app's cache is deleted."))
+        .setNegativeButton(tr("Annuler", "Cancel"), null)
+        .setPositiveButton(tr("Vider le cache", "Clear cache"), (dialog, which) -> {
+          artGeneration++;
+          artworkIO.execute(() -> {
+            long released = 0;
+            File[] entries = getCacheDir().listFiles();
+            if (entries != null) {
+              for (File entry : entries) {
+                if (entry.isFile() && isNiakCacheFile(entry.getName())) {
+                  long bytes = entry.length();
+                  if (entry.delete()) released += bytes;
+                }
+              }
+            }
+            if (cinema()) {
+              Bitmap image = wallpapers.cached();
+              if (image == null) image = wallpapers.fallback();
+              publishBackground(image);
+            }
+            long bytesReleased = released;
+            main.post(() -> {
+              if (isDestroyed()) return;
+              Toast.makeText(this, tr("Cache NiakTV vidé", "NiakTV cache cleared")
+                  + " (" + (bytesReleased / 1024) + " Ko)", Toast.LENGTH_LONG).show();
+              scan();
+              postModel();
+            });
+          });
+        }).show();
+  }
+
+  private void openAppPermissions(String packageName) {
+    Intent permissions = new Intent("android.intent.action.MANAGE_APP_PERMISSIONS");
+    permissions.putExtra(Intent.EXTRA_PACKAGE_NAME, packageName);
+    if (permissions.resolveActivity(getPackageManager()) != null) launch(permissions);
+    else launch(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.parse("package:" + packageName)));
+  }
+
   private void postModel() {
     if (!ready) return;
     try {
@@ -467,6 +587,9 @@ public final class MainActivity extends Activity {
                       ? prefs.getString("selectionApp", "")
                       : "")
               .put("nuvioInstalled", launches.containsKey("com.nuvio.tv"))
+              .put("system", systemMetrics())
+              .put("bootCandidates", bootCandidates)
+              .put("bootStatus", bootStatus)
               .put("apps", appData)
               .put("addedApps", new JSONArray(list("addedApps", Collections.emptyList())))
               .put("hiddenApps", new JSONArray(list("hiddenApps", Collections.emptyList())))
@@ -963,6 +1086,53 @@ public final class MainActivity extends Activity {
           openOriginalHome(false);
         }
         postModel();
+        break;
+      case "system-refresh":
+        postModel();
+        break;
+      case "system-startup-scan":
+        scanBootReceivers();
+        break;
+      case "system-startup-app":
+        for (int i = 0; i < bootCandidates.length(); i++) {
+          JSONObject candidate = bootCandidates.optJSONObject(i);
+          if (candidate != null && id.equals(candidate.optString("id"))) {
+            launch(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + id)));
+            break;
+          }
+        }
+        break;
+      case "system-permissions-app":
+        if (getPackageName().equals(id) || launches.containsKey(id))
+          openAppPermissions(id);
+        break;
+      case "system-permissions-all":
+        launch(new Intent("android.intent.action.MANAGE_PERMISSIONS"));
+        break;
+      case "system-apps":
+        launch(new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS));
+        break;
+      case "system-storage":
+        launch(new Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS));
+        break;
+      case "system-developer":
+        launch(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
+        break;
+      case "system-wifi":
+        launch(new Intent(Settings.ACTION_WIFI_SETTINGS));
+        break;
+      case "system-display":
+        launch(new Intent(Settings.ACTION_DISPLAY_SETTINGS));
+        break;
+      case "system-accessibility":
+        launch(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+        break;
+      case "system-about":
+        launch(new Intent(Settings.ACTION_DEVICE_INFO_SETTINGS));
+        break;
+      case "system-cache-clear":
+        clearOnlyNiakCache();
         break;
       case "settings":
         launch(new Intent(Settings.ACTION_SETTINGS));

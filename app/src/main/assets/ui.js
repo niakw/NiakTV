@@ -419,6 +419,18 @@ if (typeof module !== "undefined" && module.exports)
   }
   const menuItem = (title, description, action, id = "", key = action, disabled = false) =>
     `<button class="menu-item" ${buttonAttrs(action, id, "menu:" + key)}${disabled ? ' disabled aria-disabled="true"' : ""}><span>${esc(t(title))}${description ? `<small>${esc(t(description))}</small>` : ""}</span><span>›</span></button>`;
+  function readableBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes < 0) return t("Indisponible");
+    if (bytes === 0) return "0 " + t("Mo");
+    if (bytes < 1024 * 1024 * 1024)
+      return (bytes / (1024 * 1024)).toFixed(1).replace(".", model.language === "fr" ? "," : ".") + " " + t("Mo");
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2).replace(".", model.language === "fr" ? "," : ".") + " " + t("Go");
+  }
+  function meter(current, total) {
+    if (!(total > 0)) return "";
+    const percent = Math.max(0, Math.min(100, Math.round(current * 100 / total)));
+    return `<div class="system-meter" role="img" aria-label="${percent}%"><span style="width:${percent}%"></span></div>`;
+  }
   function renderMenu(active) {
     let html = "",
       title = t("Réglages");
@@ -529,8 +541,87 @@ if (typeof module !== "undefined" && module.exports)
           t("Temporaire ou permanent"),
           "stock-menu",
         ) +
+        menuItem(t("Applications et système"),
+          t("Applications · autorisations · stockage · mémoire"), "system-menu") +
         menuItem(t("Paramètres de la TV"), "", "settings") +
         menuItem(t("À propos et crédits"), "", "about");
+    } else if (menu === "system") {
+      title = t("Applications et système");
+      const s = model.system || {};
+      html = menuItem(t("Applications installées"),
+          t("Toutes les applications et leurs réglages Android"), "system-apps") +
+        menuItem(t("Autorisations des applications"),
+          t("Gérer les permissions de chaque application"), "system-permissions-menu") +
+        menuItem(t("Applications au démarrage"),
+          t("Applications pouvant recevoir le signal de démarrage"), "system-startup-menu") +
+        menuItem(t("Stockage"), readableBytes(s.diskFree) + " " + t("disponibles"),
+          "system-storage-menu") +
+        menuItem(t("Mémoire vive (RAM)"), readableBytes(s.ramFree) + " " + t("disponibles"),
+          "system-memory-menu") +
+        menuItem(t("Wi-Fi et réseau"), "", "system-wifi") +
+        menuItem(t("Écran et affichage"), "", "system-display") +
+        menuItem(t("Accessibilité"), "", "system-accessibility") +
+        menuItem(t("Informations sur la TV"), "", "system-about");
+    } else if (menu === "system-permissions") {
+      title = t("Autorisations des applications");
+      html = `<p class="menu-note">${esc(t("Les autorisations sont modifiées par Android, jamais contournées par NiakTV."))}</p>` +
+        menuItem(t("Gestionnaire des autorisations Android"), "",
+          "system-permissions-all") +
+        menuItem("NiakTV", t("Autorisations NiakTV"), "system-permissions-app",
+          "tv.niak.launcher", "perm:niaktv") +
+        model.apps.map(app => menuItem(appName(app), app.id,
+          "system-permissions-app", app.id, "perm:" + app.id)).join("");
+    } else if (menu === "system-startup") {
+      title = t("Applications au démarrage");
+      const status = model.bootStatus || "idle";
+      html = `<p class="menu-note">${esc(t("Ces apps déclarent pouvoir réagir au démarrage. Cela ne prouve pas qu’elles tournent actuellement. La visibilité Android peut rendre la liste incomplète."))}</p>` +
+        menuItem(t("Actualiser la détection"), status === "loading"
+          ? t("Analyse en cours") : "", "system-startup-scan", "", "startup-scan",
+          status === "loading") +
+        (status === "loading"
+          ? `<p class="menu-note">${esc(t("Analyse en cours"))}</p>`
+          : status === "unavailable"
+            ? `<p class="menu-note">${esc(t("Détection indisponible sur cet appareil"))}</p>`
+            : (model.bootCandidates || []).length
+              ? model.bootCandidates.map(app =>
+                  menuItem(app.name, app.id, "system-startup-app", app.id,
+                    "boot:" + app.id)).join("")
+              : `<p class="menu-note">${esc(t("Aucune application détectée. Cela ne signifie pas qu’aucune app ne démarre."))}</p>`) +
+        menuItem(t("Gérer les applications Android"), "", "system-apps");
+    } else if (menu === "system-storage") {
+      title = t("Stockage");
+      const s = model.system || {};
+      html = `<p class="menu-note">${esc(t("Stockage interne Android (partition des données)"))}</p>` +
+        `<p class="system-stat">${esc(t("Disponible"))} : <strong>${readableBytes(s.diskFree)}</strong></p>` +
+        `<p class="system-stat">${esc(t("Total"))} : <strong>${readableBytes(s.diskTotal)}</strong></p>` +
+        meter(s.diskTotal - s.diskFree, s.diskTotal) +
+        `<p class="system-stat">${esc(t("Cache NiakTV"))} : <strong>${readableBytes(s.niakCache)}</strong></p>` +
+        menuItem(t("Vider le cache NiakTV"),
+          t("Uniquement images et fichiers temporaires · confirmation requise"),
+          "system-cache-clear") +
+        menuItem(t("Vider les caches de toutes les apps"),
+          t("Interdit aux applications non système"),
+          "system-unavailable", "", "global-cache", true) +
+        menuItem(t("Stockage et caches Android"),
+          t("Nettoyage des autres applications via Android uniquement"),
+          "system-storage") +
+        menuItem(t("Actualiser les chiffres"), "", "system-refresh");
+    } else if (menu === "system-memory") {
+      title = t("Mémoire vive (RAM)");
+      const s = model.system || {};
+      html = `<p class="menu-note">${esc(t("La RAM libre évolue continuellement ; Android utilise aussi la RAM pour accélérer les applications."))}</p>` +
+        `<p class="system-stat">${esc(t("Disponible"))} : <strong>${readableBytes(s.ramFree)}</strong></p>` +
+        `<p class="system-stat">${esc(t("Total"))} : <strong>${readableBytes(s.ramTotal)}</strong></p>` +
+        meter(s.ramTotal - s.ramFree, s.ramTotal) +
+        `<p class="menu-note">${esc(t("Forcer l’arrêt global est interdit aux lanceurs ordinaires. Android gère la mémoire et peut arrêter ses propres processus."))}</p>` +
+        menuItem(t("Forcer l’arrêt de toutes les apps"),
+          t("Interdit aux applications non système"),
+          "system-unavailable", "", "global-stop", true) +
+        menuItem(t("Applications en cours · options développeur"),
+          t("Selon les réglages disponibles sur la TV"),
+          "system-developer") +
+        menuItem(t("Gérer les applications Android"), "", "system-apps") +
+        menuItem(t("Actualiser les chiffres"), "", "system-refresh");
     } else if (menu === "selection-app") {
       title = t("Application de Ma sélection");
       const preference = model.selectionAppPreference || "";
@@ -707,6 +798,25 @@ if (typeof module !== "undefined" && module.exports)
       closeMenu();
       return;
     }
+    if (action === "system-menu") {
+      showMenu("system");
+      device("system-refresh");
+      return;
+    }
+    if (action === "system-permissions-menu") {
+      showMenu("system-permissions");
+      return;
+    }
+    if (action === "system-startup-menu") {
+      showMenu("system-startup");
+      device("system-startup-scan");
+      return;
+    }
+    if (action === "system-storage-menu" || action === "system-memory-menu") {
+      showMenu(action === "system-storage-menu" ? "system-storage" : "system-memory");
+      device("system-refresh");
+      return;
+    }
     if (action === "stock-menu") {
       showMenu("stock");
       return;
@@ -777,6 +887,16 @@ if (typeof module !== "undefined" && module.exports)
         "app-force-stop",
         "app-cache",
         "app-uninstall",
+        "system-apps",
+        "system-permissions-app",
+        "system-permissions-all",
+        "system-startup-app",
+        "system-storage",
+        "system-developer",
+        "system-wifi",
+        "system-display",
+        "system-accessibility",
+        "system-about",
         "settings",
         "home",
         "tmdb",

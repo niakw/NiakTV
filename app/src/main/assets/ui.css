@@ -749,6 +749,31 @@ footer {
 .feature-subtitle {
   flex-shrink: 0;
 }
+.system-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  color: #c4ced2;
+  font-size: 12px;
+}
+.system-stat strong {
+  font-variant-numeric: tabular-nums;
+  color: #f3f2ed;
+}
+.system-meter {
+  height: 7px;
+  margin: 7px 0 17px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.system-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
 /* The focus contract is explicit for remotes, mouse and touch alike. */
 :root {
   --accent: #91f5df;

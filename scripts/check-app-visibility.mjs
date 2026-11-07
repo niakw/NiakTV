@@ -43,4 +43,26 @@ assert.ok(code.includes('contextmenu'), "Mouse right click must open the app men
 const css = readFileSync("app/src/main/assets/ui.css", "utf8");
 assert.ok(css.includes(".app.add-app .appmark svg") && css.includes("fill: none;"),
   "Add button must preserve its outlined plus icon");
+const nativeSource = readFileSync("app/src/main/java/tv/niak/launcher/MainActivity.java", "utf8");
+const manifest = readFileSync("app/src/main/AndroidManifest.xml", "utf8");
+for (const action of ["system-apps", "system-permissions-all", "system-permissions-app",
+  "system-startup-scan", "system-storage", "system-cache-clear",
+  "system-developer", "system-wifi", "system-display", "system-about"]) {
+  assert.ok(code.includes('"' + action + '"'), "Missing UI action " + action);
+  assert.ok(nativeSource.includes('case "' + action + '"'), "Missing native action " + action);
+}
+assert.ok(nativeSource.includes("isNiakCacheFile(entry.getName())"),
+  "Cache deletion must be limited to local approved file names");
+assert.ok(nativeSource.includes(".setPositiveButton("),
+  "Cache cleaning requires confirmation");
+assert.ok(!/\.killBackgroundProcesses\s*\(|\.forceStopPackage\s*\(|Runtime\.getRuntime\s*\(/.test(nativeSource),
+  "No global force-stop or shell execution in the native bridge");
+assert.ok(!manifest.includes("android.permission.QUERY_ALL_PACKAGES"),
+  "Do not request broad package visibility");
+assert.ok(manifest.includes("android.intent.action.BOOT_COMPLETED"),
+  "Startup discovery must be explicitly declared");
+for (const title of ["Applications et système", "Autorisations des applications",
+  "Applications au démarrage", "Stockage", "Mémoire vive (RAM)"])
+  assert.ok(translations.includes(JSON.stringify(title) + ":"),
+    "Missing system menu translation: " + title);
 console.log("NiakTV app visibility and menu contracts: passed");

@@ -30,7 +30,11 @@ adb -s TV_IP:5555 forward --remove tcp:39222
 
 The script temporarily applies fixture models to the local page for absent-app and language cases, then restores the native model. It does not uninstall apps or change their data. Avoid interacting with the launcher while it runs. WebView inspection is available only in debuggable builds.
 
-### App management regression matrix (0.3.2-dev)
+### System controls (0.3.3-dev)
+
+The new system drawer reports real Android data-partition storage and RAM figures, with explicit units. Startup detection reads exposed BOOT_COMPLETED broadcast receivers on demand; this is an incomplete *capability inventory*, not a list of running processes or proof of automatic launch. Permission management is delegated to Android's permission controller. The only cache cleaner is explicitly limited to NiakTV's own temporary artwork/cache files, with confirmation. Other-app cache wiping and global force-stop remain unavailable without system privileges. Device tests should confirm each Android Settings shortcut on the actual OEM firmware, cache persistence, and performance after reloading artworks. No extra broad package-visibility or process-killing permissions were added.
+
+### App management regression matrix (0.3.2-dev)### App management regression matrix (0.3.2-dev)
 
 The lightweight Node contract check runs in CI and verifies default TV visibility, explicitly added launcher apps, hidden-app precedence, legacy preview data, translations, and package-specific icon mappings. It is a source-level test, **not** an on-device UI or accessibility test.
 
@@ -81,7 +85,11 @@ adb -s TV_IP:5555 forward --remove tcp:39222
 
 Le script applique temporairement des modèles de contrôle à la page locale pour les cas d’app absente et les langues, puis rétablit le modèle natif. Il ne désinstalle aucune app et ne modifie pas leurs données. Évitez d’utiliser le lanceur pendant son exécution. L’inspection WebView n’est disponible que dans les builds débogables.
 
-### Matrice de régression — applications (0.3.2-dev)
+### Commandes système (0.3.3-dev)
+
+Le nouveau panneau donne les volumes réellement disponibles sur la partition de données Android et la RAM, avec unités explicites. Le détecteur à la demande interroge les récepteurs BOOT_COMPLETED exposés par Android : cette liste partielle décrit une *capacité*, pas les processus en cours ni la preuve d’un lancement automatique. Les autorisations sont toujours gérées par Android. Le seul nettoyage intégré concerne les fichiers temporaires/cache de NiakTV avec confirmation ; supprimer les caches d’autres apps ou forcer leur arrêt en masse reste impossible sans privilèges système. Les tests sur TV doivent confirmer les raccourcis des réglages du fabricant, la persistance après nettoyage et les performances au rechargement des images. Aucune permission large de visibilité ou de fermeture de processus n’a été ajoutée.
+
+### Matrice de régression — applications (0.3.2-dev)### Matrice de régression — applications (0.3.2-dev)
 
 Le test Node léger exécuté en CI vérifie la visibilité par défaut des apps TV, les applications ajoutées, la priorité du masquage, les anciens modèles d’aperçu, les traductions et les identifiants de pictogrammes. C’est un test du code source, **pas** une validation complète sur téléviseur.
 
