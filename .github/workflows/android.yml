@@ -6,16 +6,16 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v4
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: platform-tools platforms;android-35 build-tools;35.0.0
           log-accepted-android-sdk-licenses: 'false'
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6
       - name: Build, unit tests and lint
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
       - name: Check frontend JavaScript
@@ -27,12 +27,12 @@ jobs:
         run: ./gradlew --no-daemon buildEnvironment :app:dependencies --configuration debugRuntimeClasspath > dependency-report.txt
       - name: Check resolved build dependency security floors
         run: python3 scripts/check-gradle-dependencies.py dependency-report.txt
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: dependency-report
           path: dependency-report.txt
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: niaktv-debug
           path: app/build/outputs/apk/debug/app-debug.apk

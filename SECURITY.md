@@ -34,6 +34,12 @@ The repository had **six Dependabot alerts** for Bouncy Castle (three), Apache H
 
 NiakTV never calls \`pm clear\` or an equivalent command to delete another app's data. Unsupported force-stop and clear-cache actions delegate to Android Settings. Hiding an app modifies only NiakTV private preferences and does not disable its Android package. Uninstall uses the OS confirmation interface and checks the selected package against the installed launchable-app inventory. Temporary Google Home launch does not silently disable system apps or remove NiakTV's persistent redirection configuration.
 
+### CodeQL review (7 November 2026)
+
+GitHub Actions are pinned to immutable commit SHAs to mitigate workflow supply-chain changes. CodeQL also flags WebView JavaScript and the Java-to-JavaScript bridge: both are necessary for NiakTV's bundled local UI. The WebView blocks remote navigation, network loads, local file/content access and cookies. The local resource handler restricts requests to synthetic HTTPS origin niaktv.local and sets a restrictive CSP. The bridge exposes only the predefined action router, not a general shell or arbitrary Java reflection.
+
+Certificate pinning is intentionally not used for public TMDB/CDN wallpaper hosts: the network client requires HTTPS, enforces a short host allowlist, blocks redirects, and limits time and response size. Android verifies TLS certificates. Hard-coded public CDN certificates can rotate and would break wallpapers; this design choice must be revisited if network sources change. These controls narrow risk but do not establish invulnerability.
+
 ### System tools threat model
 
 System status relies on public Storage/ActivityManager APIs; it does not inspect other apps' private storage or their processes. Startup detection declares a narrow package-visibility query for BOOT_COMPLETED receivers, never QUERY_ALL_PACKAGES, and results cannot be treated as proof an app has started. Permission changes, app management and other system controls are performed by Android Settings, not by a WebView-originated shell command. Clearing cache is limited to filename-allowlisted artwork and generated files under NiakTV's own private getCacheDir(), and requires an explicit confirmation. No mass force-stop, background-process killer, root request, shell bridge or silent cross-app cache deletion is present.
@@ -79,6 +85,12 @@ La configuration CodeQL native de GitHub analyse déjà le dépôt, notamment Ja
 Le dépôt a compté **six alertes Dependabot** : Bouncy Castle (trois), Apache HttpClient (une), Commons Lang (une) et Guava (une), sur des dépendances transitives d’outils de compilation. Au 7 novembre 2026, GitHub a marqué ces six alertes comme **corrigées** (et non ignorées) après actualisation du graphe Gradle. Le rapport de CI antérieur confirmait les versions corrigées pour les cinq premières ; Guava est passée à 33.7.2-jre et le contrôle des versions a été renforcé. Toute nouvelle alerte devra être examinée sur le graphe réellement résolu, sans classement global comme ignorée. Les API *code scanning* et *secret scanning* ne renvoient aucune alerte ouverte à cette date ; cela ne prouve pas l’absence de vulnérabilités.
 
 NiakTV n’exécute jamais \`pm clear\` ni de commande équivalente qui supprimerait les données privées d’une application tierce. Les actions Forcer l’arrêt et Vider le cache non autorisées renvoient aux paramètres Android. Masquer une app change uniquement les préférences privées NiakTV et ne désactive aucun package Android. La désinstallation passe par la confirmation Android après vérification de l’app dans l’inventaire. Le retour temporaire à Google ne désactive aucun composant système et préserve la configuration de redirection durable.
+
+### Revue CodeQL (7 novembre 2026)
+
+Les actions GitHub sont épinglées à des SHA immuables pour réduire les risques de chaîne d’approvisionnement. CodeQL signale aussi JavaScript et le pont Java/WebView, indispensables à l’interface locale embarquée. La WebView refuse la navigation distante, les accès réseau, les fichiers/contenus locaux et les cookies. Le chargeur impose l’origine HTTPS synthétique niaktv.local et une CSP restrictive. Le pont ne fournit que des actions prédéfinies, ni shell ni réflexion Java libre.
+
+L’épinglage des certificats TLS n’est pas retenu pour les hôtes publics TMDB/CDN : le client impose HTTPS, une liste courte d’hôtes, aucun suivi des redirections, des limites de temps et de taille, et la validation TLS Android. Les certificats publics de CDN peuvent tourner. Ce choix doit être réévalué si les sources changent, sans prétendre garantir l’absence de vulnérabilités.
 
 ### Modèle de menace des outils système
 
