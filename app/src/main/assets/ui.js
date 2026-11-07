@@ -1,5 +1,13 @@
 "use strict";
+// Pure model contract, exported to unit tests without executing or evaluating page code.
+function niakAppInTvDock(app, model) {
+  return (app.tvDefault !== false || (model.addedApps || []).includes(app.id)) &&
+    !(model.hiddenApps || []).includes(app.id);
+}
+if (typeof module !== "undefined" && module.exports)
+  module.exports = { inTvDock: niakAppInTvDock };
 (() => {
+  if (typeof document === "undefined") return;
   let model = {
     apps: [],
     inputs: [],
@@ -142,8 +150,7 @@
     return localizedNames[app.id] ? t(localizedNames[app.id]) : names[app.id] || app.name;
   }
   function inTvDock(app) {
-    return (app.tvDefault !== false || (model.addedApps || []).includes(app.id)) &&
-      !(model.hiddenApps || []).includes(app.id);
+    return niakAppInTvDock(app, model);
   }
   function buttonAttrs(action, id, key) {
     return `data-action="${action}" data-id="${esc(id)}" data-key="${esc(key)}" tabindex="-1"`;

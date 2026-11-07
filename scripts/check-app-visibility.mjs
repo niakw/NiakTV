@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import vm from "node:vm";
+import { createRequire } from "node:module";
 
+const require = createRequire(import.meta.url);
+const { inTvDock: visible } = require("../app/src/main/assets/ui.js");
 const code = readFileSync("app/src/main/assets/ui.js", "utf8");
-const match = code.match(/function inTvDock\(app\) \{([\s\S]*?)\n  \}/);
-assert.ok(match, "TV dock visibility function must exist");
-const visible = new Function("app", "model", match[1]);
 
 const tv = { id: "tv.app", tvDefault: true, system: false };
 const ordinary = { id: "phone.app", tvDefault: false, system: false };
@@ -22,8 +21,7 @@ assert.equal(visible(tv, { addedApps: [], hiddenApps: [], favorites: [tv.id] }),
 assert.equal(visible(tv, { addedApps: [], hiddenApps: [tv.id], favorites: [tv.id] }), false, "Removing from dock does not change favorites");
 assert.equal(visible(tv, {}), true, "Missing state is handled");
 
-const box = { window: {} };
-vm.runInNewContext(readFileSync("app/src/main/assets/i18n.js", "utf8"), box);
+const translations = readFileSync("app/src/main/assets/i18n.js", "utf8");
 for (const name of [
   "Ajouter des applications",
   "Ouvrir l’application",
@@ -34,7 +32,8 @@ for (const name of [
   "Retirer l’application des Apps TV",
   "Accueil d’origine temporaire",
   "Accueil d’origine permanent"
-]) assert.ok(box.window.NiakTranslations[name], "Missing English translation: " + name);
+]) assert.ok(translations.includes(JSON.stringify(name) + ":"),
+  "Missing English translation: " + name);
 
 for (const id of ["io.gh.reisxd.tizentube.cobalt", "com.goodtoolapps.zeus",
   "com.vewd.core.browserui", "org.droidtv.nettvbrowser"])
