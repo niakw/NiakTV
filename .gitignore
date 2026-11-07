@@ -26,3 +26,7 @@ local.properties
 # Installers and generated artifacts belong in GitHub Releases, not Git
 *.apk
 *.aab
+
+# Local Python test/cache output
+__pycache__/
+*.py[cod]
