@@ -16,12 +16,16 @@ MINIMUM_VERSIONS = {
     "org.bouncycastle:bcutil-jdk18on": "1.85",
     "org.apache.httpcomponents:httpclient": "4.5.13",
     "org.apache.commons:commons-lang3": "3.18.0",
+    "com.google.guava:guava": "33.7.2",
     "org.jetbrains.kotlin:kotlin-gradle-plugin": "2.4.20",
 }
 
 
 def version_tuple(value: str) -> tuple[int, ...]:
-    return tuple(int(part) for part in value.split("."))
+    numeric = re.match(r"^\d+(?:\.\d+)*", value)
+    if not numeric:
+        raise ValueError(f"Invalid dependency version: {value}")
+    return tuple(int(part) for part in numeric.group().split("."))
 
 
 def check(report: str) -> list[str]:
@@ -32,8 +36,8 @@ def check(report: str) -> list[str]:
     for coordinate, minimum in MINIMUM_VERSIONS.items():
         pattern = re.compile(
             re.escape(coordinate)
-            + r":(?P<requested>\d+(?:\.\d+){1,3})"
-            + r"(?:\s*->\s*(?P<selected>\d+(?:\.\d+){1,3}))?"
+            + r":(?P<requested>\d+(?:\.\d+){1,3}(?:-[A-Za-z0-9.]+)?)"
+            + r"(?:\s*->\s*(?P<selected>\d+(?:\.\d+){1,3}(?:-[A-Za-z0-9.]+)?))?"
         )
         versions = [m.group("selected") or m.group("requested") for m in pattern.finditer(report)]
         if not versions:
