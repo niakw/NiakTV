@@ -869,6 +869,7 @@ public final class MainActivity extends Activity {
   private void openDeviceChannel(WebView view) {
     WebMessagePort[] channel = view.createWebMessageChannel();
     devicePort = channel[0];
+    final String challenge = UUID.randomUUID().toString();
     channel[0].setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
       @Override
       public void onMessage(WebMessagePort port, WebMessage message) {
@@ -884,7 +885,7 @@ public final class MainActivity extends Activity {
           String id = input.getString("id");
           if (!action.matches("[a-z-]{1,40}")) return;
           if (!ready) {
-            if (!"ready".equals(action) || !id.isEmpty()) return;
+            if (!"ready".equals(action) || !challenge.equals(id)) return;
             ready = true;
             view.requestFocus();
             postModel();
@@ -896,17 +897,32 @@ public final class MainActivity extends Activity {
         }
       }
     });
-    // Transfer the other endpoint only to the main frame at our exact local
-    // HTTPS origin. The document acknowledges receipt before actions are enabled.
+    // Install a one-use challenge through the native evaluation API before
+    // transferring the endpoint. A web-origin message cannot substitute a port.
+    view.evaluateJavascript(
+        "window.NiakUI&&NiakUI.prepareNativeChannel(" + JSONObject.quote(challenge) + ")",
+        result -> {
+          if (channel[0] != devicePort || view != web || isDestroyed()
+              || !LocalUiPolicy.PAGE.equals(view.getUrl()) || !"true".equals(result)) {
+            if (channel[0] == devicePort) closeDeviceChannel();
+            closeUntransferredPort(channel[1]);
+            return;
+          }
+          try {
+            view.postWebMessage(new WebMessage("niaktv-local-channel-v2:" + challenge,
+                new WebMessagePort[] {channel[1]}), Uri.parse(ORIGIN));
+          } catch (IllegalStateException unavailable) {
+            closeDeviceChannel();
+            closeUntransferredPort(channel[1]);
+          }
+        });
+  }
+
+  private static void closeUntransferredPort(WebMessagePort port) {
     try {
-      view.postWebMessage(new WebMessage("niaktv-local-channel-v1",
-          new WebMessagePort[] {channel[1]}), Uri.parse(ORIGIN));
-    } catch (IllegalStateException unavailable) {
-      closeDeviceChannel();
-      try {
-        channel[1].close();
-      } catch (IllegalStateException ignored) {
-      }
+      port.close();
+    } catch (IllegalStateException ignored) {
+      // The endpoint may already have been transferred or closed.
     }
   }
 

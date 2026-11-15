@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { inTvDock: visible } = require("../app/src/main/assets/ui.js");
+const { inTvDock: visible, nativeHandshake } = require("../app/src/main/assets/ui.js");
 const code = readFileSync("app/src/main/assets/ui.js", "utf8");
 
 const tv = { id: "tv.app", tvDefault: true, system: false };
@@ -80,9 +80,29 @@ assert.ok(nativeSource.includes("createWebMessageChannel()") &&
   nativeSource.includes("Uri.parse(ORIGIN)"), "Channel must target the local origin");
 assert.ok(nativeSource.includes("LocalUiPolicy.PAGE.equals(view.getUrl())") &&
   nativeSource.includes("port != devicePort"), "Reject stale or foreign channel messages");
-assert.ok(!code.includes("window.Device") && code.includes("event.isTrusted") &&
-  code.includes('window.location.origin !== "https://niaktv.local"'),
-  "Only accept the native channel on the trusted main document");
+assert.ok(!code.includes("window.Device") && code.includes('event.origin !== ""') &&
+  code.includes('window.location.origin !== "https://niaktv.local"') &&
+  nativeSource.includes("UUID.randomUUID()") && nativeSource.includes("challenge.equals(id)"),
+  "Check the actual sender origin, exact recipient, and one-use native challenge");
+const challenge = "12345678-1234-4123-8123-123456789abc";
+const nativeMessage = { isTrusted: true, origin: "", source: null,
+  data: "niaktv-local-channel-v2:" + challenge, ports: [{}] };
+assert.equal(nativeHandshake(nativeMessage, challenge), true);
+assert.equal(nativeHandshake(nativeMessage, null), false, "Reject absent/consumed challenge");
+assert.equal(nativeHandshake(nativeMessage, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"), false);
+for (const invalid of [
+  { origin: "https://niaktv.local" },
+  { origin: "https://example.invalid" },
+  { origin: "null" },
+  { source: {} },
+  { isTrusted: false },
+  { data: "niaktv-local-channel-v2:invalid" },
+  { ports: [] },
+  { ports: [{}, {}] },
+]) assert.equal(nativeHandshake({ ...nativeMessage, ...invalid }, challenge), false,
+  "Reject non-native or malformed handshake: " + JSON.stringify(invalid));
+assert.ok(code.includes('window.removeEventListener("message", acceptNativeChannel)'),
+  "The initial listener must be removed after successful authentication");
 assert.ok(nativeSource.includes("setAllowFileAccessFromFileURLs(false)") &&
   nativeSource.includes("setAllowUniversalAccessFromFileURLs(false)") &&
   nativeSource.includes("frame-src 'none'"), "Disable file and frame access");

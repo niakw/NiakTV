@@ -4,8 +4,17 @@ function niakAppInTvDock(app, model) {
   return (app.tvDefault !== false || (model.addedApps || []).includes(app.id)) &&
     !(model.hiddenApps || []).includes(app.id);
 }
+// Android WebView's native message has an empty sender origin and no Window source.
+// A one-use challenge is additionally installed through the native evaluation API.
+function niakNativeHandshake(event, challenge) {
+  return typeof challenge === "string" &&
+    /^[0-9a-f-]{36}$/.test(challenge) &&
+    event.isTrusted === true && event.origin === "" && event.source === null &&
+    event.data === "niaktv-local-channel-v2:" + challenge &&
+    event.ports && event.ports.length === 1;
+}
 if (typeof module !== "undefined" && module.exports)
-  module.exports = { inTvDock: niakAppInTvDock };
+  module.exports = { inTvDock: niakAppInTvDock, nativeHandshake: niakNativeHandshake };
 (() => {
   if (typeof document === "undefined") return;
   let model = {
@@ -57,14 +66,28 @@ if (typeof module !== "undefined" && module.exports)
           "'": "&#39;",
         })[c],
     );
-  let devicePort = null;
-  window.addEventListener("message", (event) => {
-    if (devicePort || !event.isTrusted || window.top !== window ||
+  let devicePort = null, nativeChallenge = null;
+  function prepareNativeChannel(challenge) {
+    if (devicePort || nativeChallenge !== null || window.top !== window ||
         window.location.origin !== "https://niaktv.local" ||
-        event.data !== "niaktv-local-channel-v1" || event.ports.length !== 1) return;
+        typeof challenge !== "string" || !/^[0-9a-f-]{36}$/.test(challenge)) return false;
+    nativeChallenge = challenge;
+    return true;
+  }
+  function acceptNativeChannel(event) {
+    // Sender origin, not the recipient's URL, is checked here. Android's
+    // native postWebMessage has an empty origin; opaque web frames use "null".
+    if (event.origin !== "") return;
+    if (devicePort || window.top !== window ||
+        window.location.origin !== "https://niaktv.local" ||
+        !niakNativeHandshake(event, nativeChallenge)) return;
+    const challenge = nativeChallenge;
+    nativeChallenge = null;
     devicePort = event.ports[0];
-    devicePort.postMessage(JSON.stringify({ action: "ready", id: "" }));
-  });
+    window.removeEventListener("message", acceptNativeChannel);
+    devicePort.postMessage(JSON.stringify({ action: "ready", id: challenge }));
+  }
+  window.addEventListener("message", acceptNativeChannel);
   const device = (action, id = "") => {
     if (devicePort) devicePort.postMessage(JSON.stringify({ action, id }));
     else toast(t("Aperçu du design — connexion Android requise"));
@@ -1073,6 +1096,7 @@ if (typeof module !== "undefined" && module.exports)
     art,
     refreshClock: clock,
     refreshModel: () => device("refresh"),
+    prepareNativeChannel,
   };
   render();
 })();
