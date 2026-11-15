@@ -73,4 +73,23 @@ for (const title of ["Applications et système", "Autorisations des applications
   "Applications au démarrage", "Stockage", "Mémoire vive (RAM)"])
   assert.ok(translations.includes(JSON.stringify(title) + ":"),
     "Missing system menu translation: " + title);
-console.log("NiakTV app visibility and menu contracts: passed");
+// Keep the native bridge local and avoid reinserting an exposed Java object.
+assert.ok(!nativeSource.includes("addJavascriptInterface(") &&
+  !nativeSource.includes("@JavascriptInterface"), "No Java object exposure");
+assert.ok(nativeSource.includes("createWebMessageChannel()") &&
+  nativeSource.includes("Uri.parse(ORIGIN)"), "Channel must target the local origin");
+assert.ok(nativeSource.includes("LocalUiPolicy.PAGE.equals(view.getUrl())") &&
+  nativeSource.includes("port != devicePort"), "Reject stale or foreign channel messages");
+assert.ok(!code.includes("window.Device") && code.includes("event.isTrusted") &&
+  code.includes('window.location.origin !== "https://niaktv.local"'),
+  "Only accept the native channel on the trusted main document");
+assert.ok(nativeSource.includes("setAllowFileAccessFromFileURLs(false)") &&
+  nativeSource.includes("setAllowUniversalAccessFromFileURLs(false)") &&
+  nativeSource.includes("frame-src 'none'"), "Disable file and frame access");
+assert.ok(manifest.includes('android:networkSecurityConfig="@xml/network_security_config"'),
+  "Use explicit Android platform TLS configuration");
+const networkPolicy = readFileSync("app/src/main/res/xml/network_security_config.xml", "utf8");
+assert.ok(networkPolicy.includes('cleartextTrafficPermitted="false"') &&
+  networkPolicy.includes('<certificates src="system"') &&
+  !networkPolicy.includes('src="user"'), "TLS trust stays restricted to system CAs");
+console.log("NiakTV app visibility, menu and security contracts: passed");

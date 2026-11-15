@@ -34,17 +34,20 @@ The repository had **six Dependabot alerts** for Bouncy Castle (three), Apache H
 
 NiakTV never calls \`pm clear\` or an equivalent command to delete another app's data. Unsupported force-stop and clear-cache actions delegate to Android Settings. Hiding an app modifies only NiakTV private preferences and does not disable its Android package. Uninstall uses the OS confirmation interface and checks the selected package against the installed launchable-app inventory. Temporary Google Home launch does not silently disable system apps or remove NiakTV's persistent redirection configuration.
 
-### CodeQL review (7 November 2026)
+### CodeQL hardening (15 November 2026)
 
-GitHub Actions are pinned to immutable commit SHAs to mitigate workflow supply-chain changes. CodeQL also flags WebView JavaScript and the Java-to-JavaScript bridge: both are necessary for NiakTV's bundled local UI. The WebView blocks remote navigation, network loads, local file/content access and cookies. The local resource handler restricts requests to synthetic HTTPS origin niaktv.local and sets a restrictive CSP. The bridge exposes only the predefined action router, not a general shell or arbitrary Java reflection.
+- Alert #3: the object-based JavaScript interface is removed. A native WebMessagePort is transferred exclusively to the main frame at the exact synthetic HTTPS origin; the page acknowledges the channel, malformed messages are rejected and the native side closes it on navigation/destruction.
+- Alert #2: JavaScript remains necessary for the bundled launcher UI. The resource client permits only the known packaged files and generated images on the exact origin; file/content access, network loading, frames, windows and remote navigation remain blocked. The generic JavaScript-enabled rule may still report this intentionally enabled setting.
+- Alert #1: the manifest declares an explicit network security policy (HTTPS only, system trust anchors); the download client requires an exact allowed host and standard HTTPS port, denies userinfo/redirects and retains platform TLS/hostname verification. Android advises against certificate pinning for services whose keys the application cannot manage. No unverified pins or permissive TLS override are introduced; the generic missing-pinning alert may remain open.
+- These changes require a future APK update to reach installed devices. The existing v0.3.4 release is unchanged. CI and real-device regression results must be checked separately.
 
-Certificate pinning is intentionally not used for public TMDB/CDN wallpaper hosts: the network client requires HTTPS, enforces a short host allowlist, blocks redirects, and limits time and response size. Android verifies TLS certificates. Hard-coded public CDN certificates can rotate and would break wallpapers; this design choice must be revisited if network sources change. These controls narrow risk but do not establish invulnerability.
+References: [Android native bridges](https://developer.android.com/privacy-and-security/risks/insecure-webview-native-bridges), [Android TLS guidance](https://developer.android.com/privacy-and-security/security-ssl), [CodeQL JavaScript rule](https://codeql.github.com/codeql-query-help/java/java-android-websettings-javascript-enabled/).
 
 ### System tools threat model
 
 System status relies on public Storage/ActivityManager APIs; it does not inspect other apps' private storage or their processes. Startup detection declares a narrow package-visibility query for BOOT_COMPLETED receivers, never QUERY_ALL_PACKAGES, and results cannot be treated as proof an app has started. Permission changes, app management and other system controls are performed by Android Settings, not by a WebView-originated shell command. Clearing cache is limited to filename-allowlisted artwork and generated files under NiakTV's own private getCacheDir(), and requires an explicit confirmation. No mass force-stop, background-process killer, root request, shell bridge or silent cross-app cache deletion is present.
 
-### What the app stores and contacts### What the app stores and contacts
+### What the app stores and contacts
 
 - Favourites, app order, appearance and Home preferences stay in private Android app storage.
 - A configured TMDB credential is stored separately in private preferences, excluded from backup and never passed to the JavaScript interface. The user can remove it in the TMDB dialog.
@@ -86,17 +89,20 @@ Le dépôt a compté **six alertes Dependabot** : Bouncy Castle (trois), Apache 
 
 NiakTV n’exécute jamais \`pm clear\` ni de commande équivalente qui supprimerait les données privées d’une application tierce. Les actions Forcer l’arrêt et Vider le cache non autorisées renvoient aux paramètres Android. Masquer une app change uniquement les préférences privées NiakTV et ne désactive aucun package Android. La désinstallation passe par la confirmation Android après vérification de l’app dans l’inventaire. Le retour temporaire à Google ne désactive aucun composant système et préserve la configuration de redirection durable.
 
-### Revue CodeQL (7 novembre 2026)
+### Durcissement CodeQL (15 novembre 2026)
 
-Les actions GitHub sont épinglées à des SHA immuables pour réduire les risques de chaîne d’approvisionnement. CodeQL signale aussi JavaScript et le pont Java/WebView, indispensables à l’interface locale embarquée. La WebView refuse la navigation distante, les accès réseau, les fichiers/contenus locaux et les cookies. Le chargeur impose l’origine HTTPS synthétique niaktv.local et une CSP restrictive. Le pont ne fournit que des actions prédéfinies, ni shell ni réflexion Java libre.
+- Alerte #3 : suppression de l'interface exposant un objet Java. Un WebMessagePort est transféré exclusivement au document principal de l'origine HTTPS locale exacte ; le document confirme sa réception, les messages mal formés sont rejetés et le canal est fermé lors de la navigation ou de la destruction.
+- Alerte #2 : JavaScript reste nécessaire au lanceur embarqué. Le chargeur n'autorise que les fichiers connus de l'APK et les images générées sur l'origine exacte. Les accès fichiers/contenus, chargements réseau, cadres, fenêtres et navigations distantes restent bloqués. L'alerte générique sur l'activation JavaScript peut rester ouverte.
+- Alerte #1 : la politique réseau explicite impose HTTPS et les autorités système. Le client de téléchargement vérifie l'hôte et le port HTTPS, refuse les identifiants dans l'URL et les redirections, et conserve la validation TLS et du nom d'hôte Android. Android déconseille l'épinglage pour les services dont l'app ne maîtrise pas les clés. Aucun pin non vérifié ni contournement TLS n'est ajouté ; l'alerte générique peut rester ouverte.
+- Ces changements nécessitent une future mise à jour APK pour atteindre les appareils. La release v0.3.4 existante reste intacte. Les résultats CI et la régression sur téléviseur doivent être vérifiés séparément.
 
-L’épinglage des certificats TLS n’est pas retenu pour les hôtes publics TMDB/CDN : le client impose HTTPS, une liste courte d’hôtes, aucun suivi des redirections, des limites de temps et de taille, et la validation TLS Android. Les certificats publics de CDN peuvent tourner. Ce choix doit être réévalué si les sources changent, sans prétendre garantir l’absence de vulnérabilités.
+Références : [ponts natifs Android](https://developer.android.com/privacy-and-security/risks/insecure-webview-native-bridges), [recommandations TLS Android](https://developer.android.com/privacy-and-security/security-ssl), [règle JavaScript CodeQL](https://codeql.github.com/codeql-query-help/java/java-android-websettings-javascript-enabled/).
 
 ### Modèle de menace des outils système
 
 Les mesures proviennent d’API publiques de stockage et d’ActivityManager ; NiakTV ne lit ni les fichiers privés ni les processus internes des autres applications. Le détecteur de démarrage déclare uniquement une requête ciblée des récepteurs BOOT_COMPLETED, sans QUERY_ALL_PACKAGES : les résultats ne prouvent pas une exécution. Les permissions et commandes protégées passent par les réglages Android, sans pont shell vers la WebView. Le nettoyage confirmé est limité aux fichiers d’illustration et aux fichiers générés dans le seul getCacheDir() privé de NiakTV, avec noms autorisés explicitement. Aucun forçage d’arrêt global, outil root ou effacement silencieux des caches tiers n’est ajouté.
 
-### Données conservées et connexions### Données conservées et connexions
+### Données conservées et connexions
 
 - Favoris, ordre des apps, apparence et préférences Accueil restent dans le stockage Android privé de l’app.
 - La clé TMDB configurée est conservée séparément dans des préférences privées, exclues des sauvegardes et jamais transmises à l’interface JavaScript. Le dialogue TMDB permet de l’oublier.

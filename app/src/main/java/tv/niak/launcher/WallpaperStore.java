@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import javax.net.ssl.HttpsURLConnection;
 import java.util.*;
 import org.json.*;
 
@@ -192,11 +193,15 @@ final class WallpaperStore {
     URL url = new URL(address);
     String host = url.getHost();
     if (!"https".equals(url.getProtocol())
+        || url.getUserInfo() != null
+        || (url.getPort() != -1 && url.getPort() != 443)
         || !(host.equals("api.themoviedb.org")
             || host.equals("image.tmdb.org")
             || host.equals("images.metahub.space")))
       throw new IOException("Source d’image non autorisée");
-    HttpURLConnection c = (HttpURLConnection) url.openConnection();
+    // Android's platform TLS and hostname verification remain intact. Public
+    // CDN keys are not controlled by NiakTV; do not add unmaintainable pins.
+    HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
     c.setConnectTimeout(10000);
     c.setReadTimeout(12000);
     c.setInstanceFollowRedirects(false);

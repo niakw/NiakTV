@@ -57,8 +57,16 @@ if (typeof module !== "undefined" && module.exports)
           "'": "&#39;",
         })[c],
     );
+  let devicePort = null;
+  window.addEventListener("message", (event) => {
+    if (devicePort || !event.isTrusted || window.top !== window ||
+        window.location.origin !== "https://niaktv.local" ||
+        event.data !== "niaktv-local-channel-v1" || event.ports.length !== 1) return;
+    devicePort = event.ports[0];
+    devicePort.postMessage(JSON.stringify({ action: "ready", id: "" }));
+  });
   const device = (action, id = "") => {
-    if (window.Device) Device.action(action, id);
+    if (devicePort) devicePort.postMessage(JSON.stringify({ action, id }));
     else toast(t("Aperçu du design — connexion Android requise"));
   };
   const play =
@@ -332,8 +340,8 @@ if (typeof module !== "undefined" && module.exports)
         .querySelectorAll(".is-focused")
         .forEach((n) => n.classList.remove("is-focused"));
       candidate.classList.add("is-focused");
-      if (candidate.dataset.action === "resume" && window.Device)
-        Device.action("art", candidate.dataset.id);
+      if (candidate.dataset.action === "resume" && devicePort)
+        device("art", candidate.dataset.id);
       candidate.focus({ preventScroll: true });
       ensureVisible(candidate);
       previousKey = candidate.dataset.key || "feature";
@@ -400,8 +408,8 @@ if (typeof module !== "undefined" && module.exports)
         .querySelectorAll(".is-focused")
         .forEach((n) => n.classList.remove("is-focused"));
       target.classList.add("is-focused");
-      if (target.dataset.action === "resume" && window.Device)
-        Device.action("art", target.dataset.id);
+      if (target.dataset.action === "resume" && devicePort)
+        device("art", target.dataset.id);
       target.focus({ preventScroll: true });
       ensureVisible(target);
       previousKey = target.dataset.key;
@@ -1064,6 +1072,7 @@ if (typeof module !== "undefined" && module.exports)
     toast,
     art,
     refreshClock: clock,
+    refreshModel: () => device("refresh"),
   };
   render();
 })();

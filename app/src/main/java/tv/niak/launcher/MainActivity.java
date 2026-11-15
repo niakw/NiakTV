@@ -53,6 +53,7 @@ public final class MainActivity extends Activity {
   private ArtworkCache artworkCache;
   private FrameLayout root;
   private WebView web;
+  private WebMessagePort devicePort;
   private boolean ready, refreshing, resumed, scanning, observing, rendererGone;
   private long backgroundVersion;
   private volatile long artGeneration;
@@ -102,9 +103,13 @@ public final class MainActivity extends Activity {
     web.setRendererPriorityPolicy(
         WebView.RENDERER_PRIORITY_BOUND, prefs.getBoolean("performance", false));
     WebSettings s = web.getSettings();
-    s.setJavaScriptEnabled(true);
     s.setAllowFileAccess(false);
     s.setAllowContentAccess(false);
+    s.setAllowFileAccessFromFileURLs(false);
+    s.setAllowUniversalAccessFromFileURLs(false);
+    s.setJavaScriptCanOpenWindowsAutomatically(false);
+    s.setSupportMultipleWindows(false);
+    s.setSafeBrowsingEnabled(true);
     s.setDomStorageEnabled(false);
     s.setTextZoom(100);
     s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
@@ -112,7 +117,7 @@ public final class MainActivity extends Activity {
     s.setMediaPlaybackRequiresUserGesture(true);
     s.setSupportZoom(false);
     CookieManager.getInstance().setAcceptCookie(false);
-    web.addJavascriptInterface(new DeviceBridge(), "Device");
+    // No Java object is injected into the page or any child frame.
     web.setWebViewClient(
         new WebViewClient() {
           @Override
@@ -123,12 +128,21 @@ public final class MainActivity extends Activity {
           @Override
           public WebResourceResponse shouldInterceptRequest(
               WebView view, WebResourceRequest request) {
-            return asset(request.getUrl());
+            Uri url = request.getUrl();
+            if (!"GET".equals(request.getMethod())
+                || (request.isForMainFrame() && !LocalUiPolicy.PAGE.equals(url.toString())))
+              return response("text/plain", new byte[0], 403);
+            return asset(url);
+          }
+
+          @Override
+          public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            closeDeviceChannel();
           }
 
           @Override
           public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-            ready = false;
+            closeDeviceChannel();
             rendererGone = true;
             root.removeView(view);
             view.destroy();
@@ -139,16 +153,18 @@ public final class MainActivity extends Activity {
 
           @Override
           public void onPageFinished(WebView view, String url) {
-            if (ORIGIN.concat("index.html").equals(url)) {
-              ready = true;
-              web.requestFocus();
-              postModel();
+            if (view == web && LocalUiPolicy.PAGE.equals(url)
+                && LocalUiPolicy.PAGE.equals(view.getUrl()) && devicePort == null) {
+              openDeviceChannel(view);
             }
           }
         });
     root.addView(web, new FrameLayout.LayoutParams(-1, -1));
     setContentView(root);
-    web.loadUrl(ORIGIN + "index.html");
+    // JavaScript is required only for the bundled frontend. Install the restrictive
+    // resource client before enabling it; never load a remote document.
+    s.setJavaScriptEnabled(true);
+    web.loadUrl(LocalUiPolicy.PAGE);
     artworkIO.execute(
         () -> {
           if (!cinema() || backgroundVersion != 0) return;
@@ -215,9 +231,9 @@ public final class MainActivity extends Activity {
     main.removeCallbacksAndMessages(null);
     catalogueIO.shutdownNow();
     artworkIO.shutdownNow();
+    closeDeviceChannel();
     if (web != null) {
       root.removeView(web);
-      web.removeJavascriptInterface("Device");
       web.destroy();
     }
     super.onDestroy();
@@ -238,14 +254,18 @@ public final class MainActivity extends Activity {
   }
 
   private void js(String script) {
-    if (ready && !isDestroyed()) web.evaluateJavascript(script, null);
+    if (ready && web != null && !isDestroyed()
+        && LocalUiPolicy.PAGE.equals(web.getUrl())) web.evaluateJavascript(script, null);
   }
 
   private WebResourceResponse asset(Uri uri) {
-    if (!"https".equals(uri.getScheme()) || !"niaktv.local".equals(uri.getHost()))
+    if (!LocalUiPolicy.isOrigin(uri.getScheme(), uri.getEncodedAuthority()))
       return response("text/plain", new byte[0], 403);
-    String path = uri.getPath();
-    if (path == null || path.contains("..")) return response("text/plain", new byte[0], 403);
+    String path = uri.getEncodedPath();
+    if (path == null || uri.getFragment() != null)
+      return response("text/plain", new byte[0], 403);
+    String mime = LocalUiPolicy.mimeFor(path);
+    if (mime == null) return response("text/plain", new byte[0], 403);
     try {
       if (path.equals("/background.webp"))
         return cachedImage(
@@ -257,16 +277,7 @@ public final class MainActivity extends Activity {
           return response("text/plain", new byte[0], 403);
         return cachedImage("image/webp", new FileInputStream(new File(getCacheDir(), filename)));
       }
-      String filename = path.substring(1);
-      String mime =
-          filename.endsWith(".css")
-              ? "text/css"
-              : filename.endsWith(".js")
-                  ? "application/javascript"
-                  : filename.endsWith(".woff2")
-                      ? "font/woff2"
-                      : filename.endsWith(".ttf") ? "font/ttf" : "text/html";
-      return response(mime, getAssets().open(filename));
+      return response(mime, getAssets().open(path.substring(1)));
     } catch (IOException e) {
       return response("text/plain", new byte[0], 404);
     }
@@ -294,7 +305,8 @@ public final class MainActivity extends Activity {
         "Content-Security-Policy",
         "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'"
             + " data:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none';"
-            + " frame-ancestors 'none'");
+            + " frame-ancestors 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'");
+    headers.put("X-Content-Type-Options", "nosniff");
     headers.put("Cache-Control", "no-cache");
     r.setResponseHeaders(headers);
     return r;
@@ -841,10 +853,60 @@ public final class MainActivity extends Activity {
             TvContract.buildChannelUriForPassthroughInput(id), "vnd.android.cursor.item/channel");
   }
 
-  private final class DeviceBridge {
-    @JavascriptInterface
-    public void action(String action, String id) {
-      main.post(() -> handle(action, id));
+  private void closeDeviceChannel() {
+    ready = false;
+    WebMessagePort current = devicePort;
+    devicePort = null;
+    if (current != null) {
+      try {
+        current.close();
+      } catch (IllegalStateException ignored) {
+        // The renderer may already have closed its endpoint.
+      }
+    }
+  }
+
+  private void openDeviceChannel(WebView view) {
+    WebMessagePort[] channel = view.createWebMessageChannel();
+    devicePort = channel[0];
+    channel[0].setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
+      @Override
+      public void onMessage(WebMessagePort port, WebMessage message) {
+        if (port != devicePort || view != web || isDestroyed()
+            || !LocalUiPolicy.PAGE.equals(view.getUrl())) return;
+        String payload = message.getData();
+        if (payload == null || payload.length() > 65536) return;
+        try {
+          JSONObject input = new JSONObject(payload);
+          if (input.length() != 2 || !(input.opt("action") instanceof String)
+              || !(input.opt("id") instanceof String)) return;
+          String action = input.getString("action");
+          String id = input.getString("id");
+          if (!action.matches("[a-z-]{1,40}")) return;
+          if (!ready) {
+            if (!"ready".equals(action) || !id.isEmpty()) return;
+            ready = true;
+            view.requestFocus();
+            postModel();
+            return;
+          }
+          if (resumed && !"ready".equals(action)) handle(action, id);
+        } catch (JSONException ignored) {
+          // Malformed messages are rejected, never evaluated as code.
+        }
+      }
+    });
+    // Transfer the other endpoint only to the main frame at our exact local
+    // HTTPS origin. The document acknowledges receipt before actions are enabled.
+    try {
+      view.postWebMessage(new WebMessage("niaktv-local-channel-v1",
+          new WebMessagePort[] {channel[1]}), Uri.parse(ORIGIN));
+    } catch (IllegalStateException unavailable) {
+      closeDeviceChannel();
+      try {
+        channel[1].close();
+      } catch (IllegalStateException ignored) {
+      }
     }
   }
 

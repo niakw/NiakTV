@@ -82,7 +82,7 @@ const expression = `(async()=>{
   const original=await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>{NiakUI.update=update;reject(new Error('Native model timeout'));},10000);
     NiakUI.update=value=>{clearTimeout(timer);NiakUI.update=update;update(value);resolve(value);};
-    Device.action('refresh','');
+    NiakUI.refreshModel();
   });
   try {
     const netflix={id:'com.netflix.ninja',name:'Netflix',icon:''};
